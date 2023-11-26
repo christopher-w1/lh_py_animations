@@ -16,8 +16,6 @@ class ScalableCanvas(tk.Canvas):
         self.scale_canvas(self.scale_factor)
         self.localqueue = SimpleQueue()
         self.fps_target = 10
-        self.frames_queued = 1
-        self.frames_displayed = 1
         self.started = time.monotonic()
         self.timer = Stopwatch()
         self.timer.set(10)
@@ -47,34 +45,59 @@ def stretch_matrix(matrix):
 
     return stretched_matrix
 
-
-def update_canvas(canvas: ScalableCanvas, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, root):
-    update_interval = 1 / canvas.fps_target
-    canvas.timer.set(update_interval)
-    
-    if not framequeue.empty():
-        canvas.delete("all") 
-        canvas.frames_displayed += 1
-        matrix = framequeue.get_nowait()
-        matrix = stretch_matrix(matrix)
-        canvas.create_rectangle(1 * canvas.scale_factor-1, 1 * canvas.scale_factor * canvas.y_distortion-1,
+def draw_rects(canvas: ScalableCanvas, matrix: (int, int, int)):
+     
+    # Draw outline
+    canvas.create_rectangle(1 * canvas.scale_factor-1, 1 * canvas.scale_factor * canvas.y_distortion-1,
                                 (len(matrix) + 1) * canvas.scale_factor + 1, (len(matrix[0]) + 2) * canvas.scale_factor * canvas.y_distortion + 1,
                                 fill="black", outline="grey")
-        for i in range(len(matrix)):
-            for j in range(len(matrix[0])):
-                rgb = matrix[i][j]
-                
-                # Skip every 2nd row
-                if j % 2 == 0 or max(rgb) < 5: continue
-            
-                x = i+1
-                y = j+1
-                canvas.create_rectangle(x * canvas.scale_factor, y * canvas.scale_factor * canvas.y_distortion,
-                                        (x + 1) * canvas.scale_factor, (y + 1) * canvas.scale_factor * canvas.y_distortion,
-                                        fill="#%02x%02x%02x" % rgb)
     
-    commandqueue.put("keep_running")
-    wait = canvas.timer.remaining_ms(1)
+    # Iterate through matrix
+    for i in range(len(matrix)):
+        for j in range(len(matrix[0])):
+            # Skip every 2nd row
+            if j % 2 == 0: continue
+
+            # Extract color
+            rgb = matrix[i][j]
+            
+            # Add offset
+            x = i+1
+            y = j+1
+
+            # Draw colored rectangle
+            canvas.create_rectangle(x * canvas.scale_factor, y * canvas.scale_factor * canvas.y_distortion,
+                                    (x + 1) * canvas.scale_factor, (y + 1) * canvas.scale_factor * canvas.y_distortion,
+                                    fill="#%02x%02x%02x" % rgb)
+
+
+def update_canvas(canvas: ScalableCanvas, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, root):
+
+    # Prepare timing parameters
+    update_interval = 1 / (canvas.fps_target)
+    canvas.timer.set(update_interval)
+    wait = 1
+    
+    # Check if we have new frames
+    if not framequeue.empty():
+
+        # Get the newest frame that is ready
+        matrix = framequeue.get()
+        while not framequeue.empty(): matrix = framequeue.get_nowait()
+
+        # Stretch matrix because we display it on a 28x28 array with over other row
+        matrix = stretch_matrix(matrix)
+
+        # Draw matrix as rectangles on canvas
+        canvas.delete("all")
+        draw_rects(canvas, matrix)
+        
+        # Keep animation process running
+        commandqueue.put("keep_running")
+
+        # Wait remaining time until the next frame is needed
+        wait = canvas.timer.remaining_ms(1)
+
     root.after(wait, update_canvas, canvas, framequeue, commandqueue, root)
             
 
@@ -83,11 +106,11 @@ def main(animation = 0):
     root = tk.Tk()
     root.title("Lighthouse Animation")
     
-    fps = 35
+    fps = 30
 
     canvas = ScalableCanvas(root, width=28, height=28, bg="black")
     canvas.pack(expand=tk.YES, fill=tk.BOTH)
-    canvas.fps_target = fps + 1
+    canvas.fps_target = fps
 
     framequeue = multiprocessing.Queue()
     commandqueue = multiprocessing.Queue()
