@@ -49,21 +49,19 @@ def draw_rects(canvas: ScalableCanvas, matrix: (int, int, int)):
      
     # Draw outline
     canvas.create_rectangle(1 * canvas.scale_factor-1, 1 * canvas.scale_factor * canvas.y_distortion-1,
-                                (len(matrix) + 1) * canvas.scale_factor + 1, (len(matrix[0]) + 2) * canvas.scale_factor * canvas.y_distortion + 1,
+                                (len(matrix) + 1) * canvas.scale_factor + 1, 2 * (len(matrix[0]) + 1) * canvas.scale_factor * canvas.y_distortion + 1,
                                 fill="black", outline="grey")
     
     # Iterate through matrix
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
-            # Skip every 2nd row
-            if j % 2 == 0: continue
 
             # Extract color
             rgb = matrix[i][j]
             
             # Add offset
-            x = i+1
-            y = j+1
+            x = i + 1
+            y = 2 * (j + 1)
 
             # Draw colored rectangle
             canvas.create_rectangle(x * canvas.scale_factor, y * canvas.scale_factor * canvas.y_distortion,
@@ -84,9 +82,6 @@ def update_canvas(canvas: ScalableCanvas, framequeue: multiprocessing.Queue, com
         # Get the newest frame that is ready
         matrix = framequeue.get()
         while not framequeue.empty(): matrix = framequeue.get_nowait()
-
-        # Stretch matrix because we display it on a 28x28 array with over other row
-        matrix = stretch_matrix(matrix)
 
         # Draw matrix as rectangles on canvas
         canvas.delete("all")
