@@ -1,6 +1,7 @@
 from stopwatch import Stopwatch
 import color_functions as color
 import math, random, multiprocessing, time
+from pyghthouse import Pyghthouse
 
 def timedither(factor = 1.0):
     if factor == 1: return True
@@ -27,6 +28,10 @@ class Fireworks(multiprocessing.Process):
             self.level = 2
             self.weight = 1
             self.motor = motor
+            self.pyghthouse = None
+            
+        def set_pyghthouse(self, ph):
+            self.pyghthouse = ph
 
         def getData(self):
             return self.x, self.y, self.move_x, self.move_y, self.color, self.level
@@ -78,6 +83,21 @@ class Fireworks(multiprocessing.Process):
                 if r+g+b < 1:
                     self.is_dead = True
 
+    def set_pyghthouse(self, username, token):
+        self.ph_user = username
+        self.ph_token = token
+        
+    def init_lighthouse(self):
+        self.pyghthouse = Pyghthouse(self.ph_user, self.ph_token)
+        self.pyghthouse.start()    
+        
+    def send_picture_to_lh(self, matrix):
+        img = self.pyghthouse.empty_image()
+        for x in range(len(img)):
+            for y in range(len(img[0])):
+                img[x][y] = matrix[y][x]
+        self.pyghthouse.set_image(img)
+        
     def params(self, xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0) -> None:
         self.matrix = [[(0, 0, 0) for _ in range(ysize)] for _ in range(xsize)]
         self.lim_x = xsize-1
@@ -118,7 +138,8 @@ class Fireworks(multiprocessing.Process):
         new = [row[:] for row in self.matrix]
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
-                new[x][y] = color.gamma(color.wash(self.matrix[x][y]), 1)
+                #new[x][y] = color.gamma(color.wash(self.matrix[x][y]), 1)
+                new[x][y] = color.gamma(color.wash(color.tint_rgb(self.matrix[x][y], (255, 64, 128))), 1.5)
         return self.collapse_matrix(new)
     
     def add_rocket(self):
@@ -202,6 +223,7 @@ class Fireworks(multiprocessing.Process):
                         self.matrix[i][j] = color.brighten(gradient_color, self.matrix[i][j])
     
     def run(self):
+        self.init_lighthouse()
         keep_running = True
         while keep_running:
             
@@ -245,6 +267,7 @@ class Fireworks(multiprocessing.Process):
             
             
             self.queue.put(self.get_matrix())
+            self.send_picture_to_lh(self.get_matrix())
 
             if not self.commands.empty():
                 self.commands.get_nowait()

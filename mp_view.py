@@ -1,9 +1,13 @@
 from queue import SimpleQueue
 import tkinter as tk
 import multiprocessing, time
+from pyghthouse import Pyghthouse
+import pyghthouse.utils as utils
 from mp_firework import Fireworks
 from mp_bouncers import BounceAnimation as Bouncers
 from mp_lavablob import Lavablobs
+from mp_rgbtest import RgbTest
+from mp_rain import RainAnimation
 from stopwatch import Stopwatch
 
 class ScalableCanvas(tk.Canvas):
@@ -81,7 +85,8 @@ def update_canvas(canvas: ScalableCanvas, framequeue: multiprocessing.Queue, com
 
         # Get the newest frame that is ready
         matrix = framequeue.get()
-        while not framequeue.empty(): matrix = framequeue.get_nowait()
+        while not framequeue.empty(): 
+            matrix = framequeue.get_nowait()
 
         # Draw matrix as rectangles on canvas
         canvas.delete("all")
@@ -106,6 +111,9 @@ def main(animation = 0):
     canvas = ScalableCanvas(root, width=28, height=28, bg="black")
     canvas.pack(expand=tk.YES, fill=tk.BOTH)
     canvas.fps_target = fps
+    
+    username = "chris1234"
+    token = "API-TOK_z3WC-kXYV-idbB-2LIi-KDiU"
 
     framequeue = multiprocessing.Queue()
     commandqueue = multiprocessing.Queue()
@@ -114,10 +122,17 @@ def main(animation = 0):
             anim = Fireworks()
         case "lava":
             anim = Lavablobs()
+        case "test":
+            anim = RgbTest()
+        case "test2":
+            anim = RgbTest2()
+        case "rain":
+            anim = RainAnimation()
         case _:
             anim = Bouncers()
 
     anim.params(28, 27, framequeue, commandqueue, fps=fps, animspeed = 1)
+    anim.set_pyghthouse(username, token)
     anim.start()
 
     animation_interval = 100  # Intervall in Millisekunden
@@ -127,5 +142,8 @@ def main(animation = 0):
     root.mainloop()
     
 if __name__ == "__main__":
-    main()
+    print("Pick an animation:")
+    print("fireworks, lava, test, rain, bouncy_orbs")
+    x = input()
+    main(x)
 

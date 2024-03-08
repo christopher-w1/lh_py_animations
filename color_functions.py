@@ -11,6 +11,17 @@ def rand_vibrant_color(intensity: float):
 def rand_vibrant_color2(intensity: float):
     return shift(rand_rgb_color(intensity), random.randint(0,359))
 
+def from_float(pixel: tuple[float, float, float]):
+    r, g, b = pixel
+    r_int, g_int, b_int = int(r), int(g), int(b)
+    rfl, gfl, bfl = r - r_int, g - g_int, b - b_int
+    threshold = random.random()
+    if rfl > threshold: r_int += 1
+    if gfl > threshold: g_int += 1
+    if bfl > threshold: b_int += 1
+    
+    return (r_int, g_int, b_int)
+
 def rand_metal_color(intensity: float):
     
     metals = {
@@ -34,11 +45,11 @@ def rand_rgb_color(intensity: float):
     random.shuffle(lst)
     return tuple(lst)
 
-def clip(color: (int, int, int)) -> (int, int, int):
+def clip(color: tuple[int, int, int]) -> tuple[int, int, int]:
     r, g, b = color
     return (max(0, min(r, 255)), max(0, min(g, 255)), max(0, min(b, 255)))
 
-def wash(color: (int, int, int)) -> (int, int, int):
+def wash(color: tuple[int, int, int]) -> tuple[int, int, int]:
     r, g, b = color
     
     max_val = max(r, g, b)
@@ -53,7 +64,7 @@ def wash(color: (int, int, int)) -> (int, int, int):
             
     return (r, g, b)
 
-def wash_firy(color: (int, int, int)) -> (int, int, int):
+def wash_firy(color: tuple[int, int, int]) -> tuple[int, int, int]:
     r, g, b = color
     
     max_val = max(r, g, b)
@@ -68,13 +79,64 @@ def wash_firy(color: (int, int, int)) -> (int, int, int):
             
     return (r, g, b)
 
+def tint_rgb(original_color, tint_color):
+    """
+    This function takes an original color and a tint color and returns the recolored RGB tuple,
+    while preserving brightness and saturation.
+    
+    Parameters:
+    original_color (tuple): The original RGB tuple (e.g., (128, 0, 0)).
+    tint_color (tuple): The tint color as an RGB tuple (e.g., (0, 255, 0)).
+    
+    Returns:
+    tuple: The recolored RGB tuple.
+    """
+    original_r, original_g, original_b = original_color
+    tint_r, tint_g, tint_b = tint_color
+    
+    # Calculate brightness of the original color
+    brightness = (original_r + original_g + original_b) / 3
+    
+    # Calculate saturation of the original color
+    saturation = max(original_r, original_g, original_b) - min(original_r, original_g, original_b)
+    
+    # Calculate brightness of the tint color
+    tint_brightness = (tint_r + tint_g + tint_b) / 3
+    
+    # Calculate saturation of the tint color
+    tint_saturation = max(tint_r, tint_g, tint_b) - min(tint_r, tint_g, tint_b)
+    
+    # Check if the tint color is pure white or black
+    if tint_brightness == 255 or tint_brightness == 0:
+        return original_color
+    
+    # Scale the tint color to maintain brightness and saturation
+    scaled_tint_r = int((tint_r / tint_brightness) * brightness)
+    scaled_tint_g = int((tint_g / tint_brightness) * brightness)
+    scaled_tint_b = int((tint_b / tint_brightness) * brightness)
+    
+    # Check if the tint color has lower saturation than the original color
+    if tint_saturation < saturation:
+        recolored_rgb = (original_r - (original_r - scaled_tint_r), 
+                         original_g - (original_g - scaled_tint_g), 
+                         original_b - (original_b - scaled_tint_b))
+    else:
+        recolored_rgb = (original_r + (scaled_tint_r - original_r), 
+                         original_g + (scaled_tint_g - original_g), 
+                         original_b + (scaled_tint_b - original_b))
+    
+    # Ensure the values are within the valid range (0-255)
+    recolored_rgb = tuple(min(max(0, x), 255) for x in recolored_rgb)
+    
+    return recolored_rgb
+
 def interpolate(color2, color1, factor):
     r = int(color1[0] + (color2[0] - color1[0]) * factor)
     g = int(color1[1] + (color2[1] - color1[1]) * factor)
     b = int(color1[2] + (color2[2] - color1[2]) * factor)
     return (r, g, b)
 
-def gamma(color: (int, int, int), gamma: float) -> (int, int, int):
+def gamma(color: tuple[int, int, int], gamma: float) -> tuple[int, int, int]:
     r, g, b = color
 
     rf = (r + 1) / 256.0
@@ -87,13 +149,13 @@ def gamma(color: (int, int, int), gamma: float) -> (int, int, int):
 
     return (r, g, b)
 
-def decay(color: (int, int, int), decay_factor: float) -> (int, int, int):
+def decay(color: tuple[int, int, int], decay_factor: float) -> tuple[int, int, int]:
     r, g, b = color
     threshold = 1
     if r <= threshold and g <= threshold and b <= threshold: 
         return (0, 0, 0)
 
-    decay_factor += random.uniform(-0.05, 0.05)
+    decay_factor *= random.uniform(0.8, 1.25)
 
     # Decay-Faktor sollte im Bereich [0, 1] liegen
     decay_factor = max(0.0, min(1.0, decay_factor))
@@ -106,14 +168,14 @@ def decay(color: (int, int, int), decay_factor: float) -> (int, int, int):
     return (r, g, b)
 
 
-def brighten(color1: (int, int, int), color2: (int, int, int)) -> (int, int, int):
+def brighten(color1: tuple[int, int, int], color2: tuple[int, int, int]) -> tuple[int, int, int]:
     r = max(color1[0], color2[0])
     g = max(color1[1], color2[1])
     b = max(color1[2], color2[2])
     return (r, g, b)
 
 
-def shift(color: (int, int, int), shift_amount: int) -> (int, int, int):
+def shift(color: tuple[int, int, int], shift_amount: int) -> tuple[int, int, int]:
     r, g, b = color
 
     # RGB zu HSV konvertieren
@@ -179,7 +241,7 @@ def hsv_to_rgb(h, s, v):
 
     return r, g, b
 
-def dither(color: (int, int, int), dither_amount: int) -> (int, int, int):
+def dither(color: tuple[int, int, int], dither_amount: int) -> tuple[int, int, int]:
     r, g, b = color
 
     # Zufälligen Dither-Wert für jeden Farbkanal generieren
@@ -192,7 +254,7 @@ def dither(color: (int, int, int), dither_amount: int) -> (int, int, int):
 
     return (r, g, b)
 
-def middither(color: (int, int, int), intensity) -> (int, int, int):
+def middither(color: tuple[int, int, int], intensity) -> tuple[int, int, int]:
     r, g, b = color
     
     def capdiff(n):
@@ -244,7 +306,7 @@ def cycle(base_color, amount = 360, frequency = 5):
     new_color = shift(base_color, factor)
     return new_color
 
-def add(color1: (int, int, int), color2: (int, int, int)):
+def add(color1: tuple[int, int, int], color2: tuple[int, int, int]):
     
     result_color = (
         color1[0] + color2[0],
@@ -254,6 +316,6 @@ def add(color1: (int, int, int), color2: (int, int, int)):
 
     return result_color
 
-def multiply_val(color: (int, int, int), value):
+def multiply_val(color: tuple[int, int, int], value):
     r, g, b = color
     return (r*value, g*value, b*value)

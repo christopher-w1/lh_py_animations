@@ -2,6 +2,7 @@ import tkinter as tk
 import color_functions as color
 import math, random, time, multiprocessing
 from stopwatch import Stopwatch
+from pyghthouse import Pyghthouse
 
 class BounceAnimation(multiprocessing.Process):
     class Orb:
@@ -103,6 +104,21 @@ class BounceAnimation(multiprocessing.Process):
         self.spawnmore = True
         for _ in range(5):
             self.add_rand_orb()
+            
+    def set_pyghthouse(self, username, token):
+        self.ph_user = username
+        self.ph_token = token
+        
+    def init_lighthouse(self):
+        self.pyghthouse = Pyghthouse(self.ph_user, self.ph_token)
+        self.pyghthouse.start()    
+        
+    def send_picture_to_lh(self, matrix):
+        img = self.pyghthouse.empty_image()
+        for x in range(len(img)):
+            for y in range(len(img[0])):
+                img[x][y] = matrix[y][x]
+        self.pyghthouse.set_image(img)
 
     def collapse_matrix(self, matrix):
         collapsed_matrix = []
@@ -156,8 +172,10 @@ class BounceAnimation(multiprocessing.Process):
                         gradient_color = color.interpolate(orbcolor, (0,0,0), gradient_factor)
 
                         self.matrix[i][j] = color.brighten(gradient_color, self.matrix[i][j])
+
     
     def run(self):
+        self.init_lighthouse()
         while True:
 
             update_interval = 1/self.fps
@@ -181,8 +199,9 @@ class BounceAnimation(multiprocessing.Process):
             elif len(self.orbs) < 5:
                 self.spawnmore = True
                 
-            
-            self.queue.put(self.get_matrix())
+            matrix = self.get_matrix()
+            self.queue.put(matrix)
+            self.send_picture_to_lh(matrix)
 
             if not self.commands.empty():
                 self.commands.get_nowait()
@@ -197,6 +216,8 @@ class BounceAnimation(multiprocessing.Process):
             
             time.sleep(wait)
         
-        
+import mp_view
+if __name__ == "__main__":
+    mp_view.main("bouncy_orbs")
     
 

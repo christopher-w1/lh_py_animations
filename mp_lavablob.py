@@ -1,6 +1,7 @@
 from stopwatch import Stopwatch
 import color_functions as color
 import math, random, multiprocessing, time
+from pyghthouse import Pyghthouse
 
 def timedither(factor = 1.0):
     if factor == 1: return True
@@ -43,6 +44,10 @@ class Lavablobs(multiprocessing.Process):
             self.deform_y = 0
 
             self.bounce = False
+            self.pyghthouse = None
+            
+        def set_pyghthouse(self, ph):
+            self.pyghthouse = ph
                     
         def apply_heat(self):
             change = (self.lim_y / 2) - self.y
@@ -115,7 +120,22 @@ class Lavablobs(multiprocessing.Process):
             self.apply_heat()
             self.move()
             #print(self.x, self.y, self.deform_y, self.speed_y)
+
             
+    def set_pyghthouse(self, username, token):
+        self.ph_user = username
+        self.ph_token = token
+        
+    def init_lighthouse(self):
+        self.pyghthouse = Pyghthouse(self.ph_user, self.ph_token)
+        self.pyghthouse.start()    
+        
+    def send_picture_to_lh(self, matrix):
+        img = self.pyghthouse.empty_image()
+        for x in range(len(img)):
+            for y in range(len(img[0])):
+                img[x][y] = matrix[y][x]
+        self.pyghthouse.set_image(img)
 
     def params(self, xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0) -> None:
         self.matrix = [[(0, 0, 0) for _ in range(ysize)] for _ in range(xsize)]
@@ -189,6 +209,7 @@ class Lavablobs(multiprocessing.Process):
     
     def run(self):
         
+        self.init_lighthouse()
         while True:
             
             update_interval = 1/self.fps
@@ -206,6 +227,7 @@ class Lavablobs(multiprocessing.Process):
                 
             
             self.queue.put(self.get_matrix())
+            self.send_picture_to_lh(self.get_matrix())
 
             if not self.commands.empty():
                 self.commands.get_nowait()
