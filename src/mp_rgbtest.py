@@ -183,8 +183,8 @@ class RgbTest(multiprocessing.Process):
             
             time.sleep(wait)
         
-import mp_view
+"""import main
 if __name__ == "__main__":
-    mp_view.main("test")
+    main.main("test")"""
     
 

@@ -187,6 +187,6 @@ class RainAnimation(multiprocessing.Process):
     
 
         
-import mp_view
+"""import main
 if __name__ == "__main__":
-    mp_view.main("rain")
+    main.main("rain")"""
