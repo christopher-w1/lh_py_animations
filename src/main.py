@@ -1,5 +1,6 @@
 from queue import SimpleQueue
 import tkinter as tk
+import os
 import multiprocessing, time
 from pyghthouse.ph import Pyghthouse
 import pyghthouse.utils as utils
@@ -11,8 +12,8 @@ from mp_rain import RainAnimation
 from stopwatch import Stopwatch
 
 
-username = "name"
-token = "token"
+username = os.getenv('LIGHTHOUSE_USER')
+token = os.getenv('LIGHTHOUSE_TOKEN')
 
 class ScalableCanvas(tk.Canvas):
     def __init__(self, master=None, **kwargs):
