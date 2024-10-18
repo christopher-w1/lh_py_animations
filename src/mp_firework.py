@@ -8,6 +8,8 @@ def timedither(factor = 1.0):
     val = random.randint(1, int (10/factor))
     return val <= 10
 
+X_Scale = 0.7
+
 class Fireworks(multiprocessing.Process):
     class Orb:
         def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0, motor = False) -> None:
@@ -138,8 +140,8 @@ class Fireworks(multiprocessing.Process):
         new = [row[:] for row in self.matrix]
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
-                #new[x][y] = color.gamma(color.wash(self.matrix[x][y]), 1)
-                new[x][y] = color.gamma(color.wash(color.tint_rgb(self.matrix[x][y], (255, 64, 128))), 1.5)
+                new[x][y] = color.gamma(color.wash(self.matrix[x][y]), 1.7)
+                #new[x][y] = color.gamma(color.wash(color.tint_rgb(self.matrix[x][y], (255, 64, 128))), 1.5)
         return self.collapse_matrix(new)
     
     def add_rocket(self):
@@ -202,10 +204,10 @@ class Fireworks(multiprocessing.Process):
     def render_orb(self, orb):
         # Rendere den Orb auf der Matrix
         x, y = int(orb.x), int(orb.y)
-        for i in range(x - orb.radius, x + orb.radius + 1):
+        for i in range(x - int(orb.radius/X_Scale), x + int(orb.radius/X_Scale) + 1):
             for j in range(y - orb.radius, y + orb.radius + 1):
                 if 0 <= i < len(self.matrix) and 0 <= j < len(self.matrix[0]):
-                    distance = math.sqrt((i - orb.x) ** 2 + (j - orb.y) ** 2)
+                    distance = math.sqrt(((i - orb.x) ** 2)*X_Scale + (j - orb.y) ** 2)
                     if distance <= orb.radius:
                         # Linearer Farbverlauf basierend auf Entfernung
                         orbcolor = color.gamma(orb.color, 1/orb.blend_in)

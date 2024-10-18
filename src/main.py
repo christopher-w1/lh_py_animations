@@ -11,8 +11,8 @@ from mp_rain import RainAnimation
 from stopwatch import Stopwatch
 
 
-username = "name"
-token = "token"
+username = ""
+token = ""
 
 class ScalableCanvas(tk.Canvas):
     def __init__(self, master=None, **kwargs):
@@ -20,7 +20,7 @@ class ScalableCanvas(tk.Canvas):
         self.original_width = 28
         self.original_height = 28
         self.scale_factor = 10
-        self.y_distortion = 1
+        self.y_distortion = 1.2
         self.scale_canvas(self.scale_factor)
         self.localqueue = SimpleQueue()
         self.fps_target = 10
@@ -80,7 +80,7 @@ def draw_rects(canvas: ScalableCanvas, matrix: tuple[int, int, int]):
 def update_canvas(canvas: ScalableCanvas, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, root):
 
     # Prepare timing parameters
-    update_interval = 1 / (canvas.fps_target)
+    update_interval = 1 / (canvas.fps_target) * 3
     canvas.timer.set(update_interval)
     wait = 1
     
@@ -110,7 +110,7 @@ def main(animation = 0):
     root = tk.Tk()
     root.title("Lighthouse Animation")
     
-    fps = 30
+    fps = 40
 
     canvas = ScalableCanvas(root, width=28, height=28, bg="black")
     canvas.pack(expand=tk.YES, fill=tk.BOTH)
