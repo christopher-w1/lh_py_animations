@@ -9,6 +9,9 @@ def timedither(factor = 1.0):
     return val <= 10
 
 X_Scale = 0.7
+BRIGHTNESS = 0.5
+GAMMA = 1.5
+PRESERVE_COLOR = 0.01
 
 class Fireworks(multiprocessing.Process):
     class Orb:
@@ -140,7 +143,7 @@ class Fireworks(multiprocessing.Process):
         new = [row[:] for row in self.matrix]
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
-                new[x][y] = color.gamma(color.wash(self.matrix[x][y]), 1.7)
+                new[x][y] = color.gamma(color.wash(color.multiply_val(self.matrix[x][y], BRIGHTNESS), PRESERVE_COLOR), GAMMA)
                 #new[x][y] = color.gamma(color.wash(color.tint_rgb(self.matrix[x][y], (255, 64, 128))), 1.5)
         return self.collapse_matrix(new)
     

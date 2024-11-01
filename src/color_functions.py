@@ -49,7 +49,17 @@ def clip(color: tuple[int, int, int]) -> tuple[int, int, int]:
     r, g, b = color
     return (max(0, min(r, 255)), max(0, min(g, 255)), max(0, min(b, 255)))
 
-def wash(color: tuple[int, int, int]) -> tuple[int, int, int]:
+def normalize(color: tuple[int, int, int]) -> tuple[int, int, int]:
+    r, g, b = color
+    color_max = max(r, g, b)
+    if color_max < 1:
+        return color
+    r *= (255/color_max)
+    g *= (255/color_max)
+    b *= (255/color_max)
+    return (r, g, b)
+
+def wash(color: tuple[int, int, int], keep_color=None) -> tuple[int, int, int]:
     r, g, b = color
     
     max_val = max(r, g, b)
@@ -61,6 +71,10 @@ def wash(color: tuple[int, int, int]) -> tuple[int, int, int]:
         r = min(255, r + diff_half)
         g = min(255, g + diff_half)
         b = min(255, b + diff_half)
+
+        if keep_color:
+            normalized = normalize(color)
+            return(interpolate(normalized, (r, g, b), keep_color))
             
     return (r, g, b)
 
