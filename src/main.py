@@ -161,7 +161,19 @@ def main(animation, username, token):
     anim.set_pyghthouse(username, token)
     anim.start()
     
-    root.mainloop()
+    if 'gui' in animation:
+        root.mainloop()
+    else:    
+        while True:    
+            # Check if we have new frames
+            if not framequeue.empty():
+
+                while not framequeue.empty(): 
+                    _ = framequeue.get_nowait()
+                
+                # Keep animation process running
+                commandqueue.put("keep_running")
+            time.sleep(0.1)
     
 if __name__ == "__main__":
     username, token = read_auth()
