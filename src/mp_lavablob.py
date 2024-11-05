@@ -3,6 +3,9 @@ import color_functions as color
 import math, random, multiprocessing, time
 from pyghthouse import Pyghthouse
 
+
+COLORFUL = True
+
 def timedither(factor = 1.0):
     if factor == 1: return True
     val = random.randint(1, int (10/factor))
@@ -31,7 +34,7 @@ class Lavablobs(multiprocessing.Process):
             self.radius = 3.0
             self.x = x
             self.y = y
-            self.color = (512, 192, 64)
+            self.color = color.multiply_val(color.rand_vibrant_color(1), 2) if COLORFUL else (512, 192, 64)
             
             self.weight = 1.0
             

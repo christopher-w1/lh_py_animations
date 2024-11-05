@@ -11,8 +11,28 @@ from mp_rain import RainAnimation
 from stopwatch import Stopwatch
 
 
-username = ""
-token = ""
+def read_auth(filename="auth.txt"):
+    with open(filename) as src:
+        username, token = None, None
+        lines = src.readlines()
+        for line in lines:
+            line = line.split(":")
+            if len(line) == 2:
+                match line[0].strip().lower():
+                    case 'name':
+                        username = line[1].strip()
+                        print(f"Username read from file: {username}")
+                    case 'username':
+                        username = line[1].strip()
+                        print(f"Username read from file: {username}")
+                    case 'token':
+                        token = line[1].strip()
+                        print(f"Token read from file: {token}")
+                    case _:
+                        print(f"Unrecognized Key: '{line[0]}'")
+        if not username or not token:
+            print(f"Error: File {filename} is incomplete!")
+        return username, token
 
 class ScalableCanvas(tk.Canvas):
     def __init__(self, master=None, **kwargs):
@@ -106,45 +126,49 @@ def update_canvas(canvas: ScalableCanvas, framequeue: multiprocessing.Queue, com
             
 
             
-def main(animation = 0):
-    root = tk.Tk()
-    root.title("Lighthouse Animation")
-    
-    fps = 40
+def main(animation, username, token):
 
-    canvas = ScalableCanvas(root, width=28, height=28, bg="black")
-    canvas.pack(expand=tk.YES, fill=tk.BOTH)
-    canvas.fps_target = fps
+    fps = 40
 
     framequeue = multiprocessing.Queue()
     commandqueue = multiprocessing.Queue()
-    match animation:
+    match animation.split(" ")[0]:
         case "fireworks":
             anim = Fireworks()
         case "lava":
             anim = Lavablobs()
         case "test":
             anim = RgbTest()
-        #case "test2":
-            #anim = RgbTest2()
         case "rain":
             anim = RainAnimation()
         case _:
             anim = Bouncers()
 
+
+    if 'gui' in animation:
+        root = tk.Tk()
+        root.title("Lighthouse Animation")
+         
+        canvas = ScalableCanvas(root, width=28, height=28, bg="black")
+        canvas.pack(expand=tk.YES, fill=tk.BOTH)
+        canvas.fps_target = fps
+
+        animation_interval = 100  # Intervall in Millisekunden
+        root.after(animation_interval, update_canvas, canvas, framequeue, commandqueue, root)  # Erste Animation starten
+
+
     anim.params(28, 27, framequeue, commandqueue, fps=fps, animspeed = 1)
     anim.set_pyghthouse(username, token)
     anim.start()
-
-    animation_interval = 100  # Intervall in Millisekunden
-    root.after(animation_interval, update_canvas, canvas, framequeue, commandqueue, root)  # Erste Animation starten
-
     
     root.mainloop()
     
 if __name__ == "__main__":
+    username, token = read_auth()
+    if not username or not token:
+        exit(1)
     print("Pick an animation:")
     print("fireworks, lava, test, rain, bouncy_orbs")
     x = input()
-    main(x)
+    main(x, username, token)
 

@@ -11,7 +11,7 @@ def timedither(factor = 1.0):
 X_Scale = 0.7
 BRIGHTNESS = 0.5
 GAMMA = 1.5
-PRESERVE_COLOR = 0.01
+PRESERVE_COLOR = 0.5
 
 class Fireworks(multiprocessing.Process):
     class Orb:
