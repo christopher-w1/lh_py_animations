@@ -98,9 +98,13 @@ class DiffAnimation(multiprocessing.Process):
             elif energy > 3:
                 self.loss_factor = 0.99
 
+    def stop(self):
+        self._stop_event.set()
+        
     @staticmethod
     def get_instance(xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0):
         new_instance = DiffAnimation()
+        new_instance._stop_event = multiprocessing.Event()
         new_instance.params(xsize, ysize, framequeue, commandqueue, fps, animspeed)
         return new_instance
     
@@ -109,7 +113,7 @@ class DiffAnimation(multiprocessing.Process):
         self.lim_x = xsize-1
         self.lim_y = ysize-1
         self.queue = framequeue
-        self.commandqueue = commandqueue
+        self.commands = commandqueue
         self.fps = fps
         #self.matrix = np.zeros((int(self.lim_x), int(self.lim_y), 3), dtype=np.uint8)
         self.orbs = []
@@ -119,20 +123,6 @@ class DiffAnimation(multiprocessing.Process):
         self.quittimer.set(1)
         self.spawnmore = True
             
-    def set_pyghthouse(self, username, token):
-        self.ph_user = username
-        self.ph_token = token
-        
-    def init_lighthouse(self):
-        self.pyghthouse = Pyghthouse(self.ph_user, self.ph_token)
-        self.pyghthouse.start()    
-        
-    def send_picture_to_lh(self, matrix):
-        img = self.pyghthouse.empty_image()
-        for x in range(len(img)):
-            for y in range(len(img[0])):
-                img[x][y] = matrix[y][x]
-        self.pyghthouse.set_image(img)
 
     def collapse_matrix(self, matrix):
         collapsed_matrix = []
@@ -263,9 +253,8 @@ class DiffAnimation(multiprocessing.Process):
 
     
     def run(self):
-        self.init_lighthouse()
         blur_matrix = [[(0, 0, 0) for _ in range(self.lim_y+1)] for _ in range(self.lim_x+1)]
-        while True:
+        while not self._stop_event.is_set():
 
             update_interval = 1/self.fps
             self.frametimer.set(update_interval)
@@ -303,22 +292,20 @@ class DiffAnimation(multiprocessing.Process):
                 
             matrix = self.get_matrix()
             self.queue.put(matrix)
-            self.send_picture_to_lh(matrix)
 
-            if not self.commandqueue.empty():
-                while not self.commandqueue.empty():
-                    cmd = self.commandqueue.get_nowait()
-                    if cmd == 'stop':
-                        self.fadeout = True
-                    
+            if not self.commands.empty():
+                self.commands.get_nowait()
+                while not self.commands.empty():
+                    self.commands.get_nowait()
                 self.quittimer.set(1)
             elif self.quittimer.remaining_ms() == 0:
                 print("No signal from control process. Quitting.")
-                exit(0)
+                self._stop_event.set()
             
             wait = self.frametimer.remaining()
             
             time.sleep(wait)
+        exit(0)
 
 import main
 if __name__ == "__main__":

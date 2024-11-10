@@ -200,7 +200,7 @@ def main(animation=None):
                 commandqueue.put("keep_running")
             time.sleep(0.1)
             
-    anim.join()
+    anim.stop()
     print("Thread joined.")
     anim.close()
     

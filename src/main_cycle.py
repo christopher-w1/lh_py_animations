@@ -1,8 +1,6 @@
-from queue import SimpleQueue
 import tkinter as tk
-import multiprocessing, time
+import multiprocessing, time, sys, signal
 from pyghthouse.ph import Pyghthouse
-import pyghthouse.utils as utils
 from mp_firework import Fireworks
 from mp_bouncers import BounceAnimation as Bouncers
 from mp_lavablob import Lavablobs
@@ -11,143 +9,120 @@ from mp_rain import RainAnimation
 from mp_rebound import ReboundAnimation
 from mp_diffraction import DiffAnimation
 from stopwatch import Stopwatch
+from color_functions import interpolate
 
-# Initialisiere den globalen Timer
-timer = Stopwatch()
-
-def read_auth(filename="auth.txt"):
-    # Funktion zum Einlesen der Authentifizierungsdaten
-    with open(filename) as src:
-        username, token = None, None
-        lines = src.readlines()
-        for line in lines:
-            line = line.split(":")
-            if len(line) == 2:
-                match line[0].strip().lower():
-                    case 'name':
-                        username = line[1].strip()
-                        print(f"Username read from file: {username}")
-                    case 'token':
-                        token = line[1].strip()
-                        print(f"Token read from file: {token}")
-                    case _:
-                        print(f"Unrecognized Key: '{line[0]}'")
-        if not username or not token:
-            print(f"Error: File {filename} is incomplete!")
-        return username, token
-
-class ScalableCanvas(tk.Canvas):
-    def __init__(self, master=None, **kwargs):
-        tk.Canvas.__init__(self, master, **kwargs)
-        self.original_width = 28
-        self.original_height = 28
-        self.scale_factor = 10
-        self.y_distortion = 1.2
-        self.scale_canvas(self.scale_factor)
-        self.localqueue = SimpleQueue()
-        self.fps_target = 10
-        self.started = time.monotonic()
-        self.timer = Stopwatch()
-        self.timer.set(10)
-
-    def scale_canvas(self, factor):
-        # Funktion zum Skalieren des Canvas
-        self.scale_factor = factor
-        self.config(width=self.original_width * factor, height=self.original_height * factor * self.y_distortion)
-        self.master.geometry(f"{int((self.original_width + 2) * factor)}x{int((self.original_height + 3) * factor * self.y_distortion)}")
-
-    def reset_counter(self):
-        # Funktion zum Zurücksetzen des FPS-Zählers
-        anim_fps = self.frames_queued / (time.monotonic() - self.started)
-        view_fps = self.frames_displayed / (time.monotonic() - self.started)
-        self.frames_queued = anim_fps
-        self.frames_displayed = view_fps
-        self.started = time.monotonic()-1
-
-def stretch_matrix(matrix):
-    # Funktion zum Strecken der Matrix
-    stretched_matrix = []
-    for row in matrix:
-        stretched_row = []
-        for pixel in row:
-            stretched_row.append(pixel)
-            stretched_row.append(pixel)  # Füge den Pixel noch einmal hinzu, um ihn zu strecken
-        stretched_matrix.append(stretched_row)
-    return stretched_matrix
-
-def draw_rects(canvas: ScalableCanvas, matrix: tuple[int, int, int]):
-    # Funktion zum Zeichnen von Rechtecken auf dem Canvas
-    canvas.create_rectangle(1 * canvas.scale_factor-1, 1 * canvas.scale_factor * canvas.y_distortion-1,
-                            (len(matrix) + 1) * canvas.scale_factor + 1, 2 * (len(matrix[0]) + 1) * canvas.scale_factor * canvas.y_distortion + 1,
-                            fill="black", outline="grey")
-    for i in range(len(matrix)):
-        for j in range(len(matrix[0])):
-            rgb = matrix[i][j]
-            x = i + 1
-            y = 2 * (j + 1)
-            canvas.create_rectangle(x * canvas.scale_factor, y * canvas.scale_factor * canvas.y_distortion,
-                                    (x + 1) * canvas.scale_factor, (y + 1) * canvas.scale_factor * canvas.y_distortion,
-                                    fill="#%02x%02x%02x" % rgb)
-
-def cycle_animation(anim_list, anim_index, framequeue, commandqueue, username, token):
-    # Funktion zum Wechseln der Animation
-    new_anim = anim_list[anim_index]
-    anim_index = (anim_index + 1) % len(anim_list)  # Gehe zur nächsten Animation
-    new_anim.set_pyghthouse(username, token)
-    new_anim.start()
-    return anim_index
-
-def update_canvas(canvas: ScalableCanvas, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, root, anim_list, anim_index, username, token):
-
-    update_interval = 1 / canvas.fps_target * 3
-    canvas.timer.set(update_interval)
-    wait = 1
-    
-    if not framequeue.empty():
-        matrix = framequeue.get()
-        while not framequeue.empty(): 
-            matrix = framequeue.get_nowait()
-        canvas.delete("all")
-        draw_rects(canvas, matrix)
+class AnimationController():   
+    def __init__(self, time_per_anim) -> None:
+        self.keep_going = True
+        signal.signal(signal.SIGINT, self._handle_sigint)
+        self.run(time_per_anim)
         
-        # Prüfe, ob 10 Sekunden abgelaufen sind und die Animation gewechselt werden soll
-        if timer.has_elapsed():
-            anim_index = cycle_animation(anim_list, anim_index, framequeue, commandqueue, username, token)
-            timer.set(10)  # Setze den Timer zurück
-
-        commandqueue.put("keep_running")
-        wait = canvas.timer.remaining_ms(1)
-
-    root.after(wait, update_canvas, canvas, framequeue, commandqueue, root, anim_list, anim_index, username, token)
-
-def main(animation=None):
-    username, token = read_auth()
-    if not username or not token:
-        exit(1)
     
-    # Liste der Animationen
-    anim_list = [Fireworks(), Lavablobs(), RgbTest(), RainAnimation(), Bouncers(), ReboundAnimation(), DiffAnimation()]
-    anim_index = 0  # Startindex der Animation
+    @staticmethod     
+    def read_auth(filename="auth.txt"):
+        with open(filename) as src:
+            username, token = None, None
+            lines = src.readlines()
+            for line in lines:
+                line = line.split(":")
+                if len(line) == 2:
+                    match line[0].strip().lower():
+                        case 'name':
+                            username = line[1].strip()
+                            print(f"Username read from file: {username}")
+                        case 'username':
+                            username = line[1].strip()
+                            print(f"Username read from file: {username}")
+                        case 'token':
+                            token = line[1].strip()
+                            print(f"Token read from file: {token}")
+                        case _:
+                            print(f"Unrecognized Key: '{line[0]}'")
+            if not username or not token:
+                print(f"Error: File {filename} is incomplete!")
+            return username, token
 
-    fps = 40
-    global timer
-    timer.set(10)  # Initialer Timer für 10 Sekunden
-
-    framequeue = multiprocessing.Queue()
-    commandqueue = multiprocessing.Queue()
-    anim = anim_list[anim_index]
+    @staticmethod     
+    def send_frame(ph: Pyghthouse, image: list): 
+        img = ph.empty_image()
+        for x in range(min(len(img), len(image[0]))):
+            for y in range(min(len(img[0]), len(image))):
+                img[x][y] = image[y][x]
+        ph.set_image(img)
+        
+    @staticmethod     
+    def send_faded_frame(ph: Pyghthouse, image: list, factor: float):
+        img = ph.empty_image()
+        for x in range(min(len(img), len(image[0]))):
+            for y in range(min(len(img[0]), len(image))):
+                img[x][y] = interpolate(image[y][x], img[x][y], factor) 
+        ph.set_image(img)
+        
+    def _handle_sigint(self, signum, frame):
+        print("Ctrl+C detected. Stopping animations...")
+        self.keep_going = False
+        
+    ##### RUN METHOD #####
+    def run(self, time_per_anim):
+        username, token = self.read_auth()
+        if not username or not token:
+            exit(1)
+            
+        animations = [Fireworks(), 
+                    Lavablobs(),
+                    #RgbTest(), 
+                    RainAnimation(), 
+                    ReboundAnimation(), 
+                    DiffAnimation(), 
+                    Bouncers()]
+        
+        fps = 40
+        
+        ph = Pyghthouse(username, token)
+        ph.start()
+        
+        anim_timer = Stopwatch()
+        frametimer = Stopwatch() 
+        update_interval = 1/(fps-1)
+        n = 0
+        while self.keep_going:
+            framequeue = multiprocessing.Queue()
+            commandqueue = multiprocessing.Queue()
+            anim_timer.set(time_per_anim)
+            anim = animations[n].get_instance(28, 27, framequeue, commandqueue, fps=fps, animspeed = 1)
+            print(f"Starting animation '{anim.name}' for {time_per_anim} seconds.")
+            anim.params(28, 27, framequeue, commandqueue, fps=fps, animspeed = 1)
+            anim.start()
+            
+            image = Pyghthouse.empty_image()
+            opacity = 0
+            while not anim_timer.has_elapsed() and self.keep_going:   
+                frametimer.set(update_interval)
+                while not framequeue.empty(): 
+                    image = framequeue.get_nowait()
+                if opacity < 255:
+                    self.send_faded_frame(ph, image, opacity/256)
+                    opacity += 4
+                else:
+                    self.send_frame(ph, image)
+                commandqueue.put("keep_running")
+                time.sleep(frametimer.remaining())
+                
+            for i in range(256, 0, -4):
+                frametimer.set(update_interval)
+                while not framequeue.empty(): 
+                    image = framequeue.get_nowait()
+                self.send_faded_frame(ph, image, i/256)
+                commandqueue.put("keep_running")
+                time.sleep(frametimer.remaining())
+                    
+            #Fireworks().terminate()
+            print("Attempting to terminate process...")
+            anim.stop()
+            anim.join(timeout = 2)
+            print("Child process terminated.")
+            n = (n+1) % len(animations)
     
-    root = tk.Tk()
-    root.title("Lighthouse Animation")
-    canvas = ScalableCanvas(root, width=28, height=28, bg="black")
-    canvas.pack(expand=tk.YES, fill=tk.BOTH)
-    canvas.fps_target = fps
-    root.after(100, update_canvas, canvas, framequeue, commandqueue, root, anim_list, anim_index, username, token)
-
-    anim.params(28, 27, framequeue, commandqueue, fps=fps, animspeed = 1)
-    anim.set_pyghthouse(username, token)
-    anim.start()
-    root.mainloop()
-
 if __name__ == "__main__":
-    main()
+    time_per_anim=int(sys.argv[1]) if len(sys.argv) > 1 else 30
+    AnimationController(time_per_anim)

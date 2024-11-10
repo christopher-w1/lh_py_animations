@@ -221,8 +221,10 @@ class Pyghthouse:
             self.ph_thread.join()
 
     def close(self):
+        print("Terminating pyghthouse...")
         self.stop()
         self.connector.stop()
+        print("Pyghthouse process stopped.")
 
     def set_image(self, image):
         with self.connector.lock:
