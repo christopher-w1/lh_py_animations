@@ -15,7 +15,7 @@ PRESERVE_COLOR = 0.5
 
 class Fireworks(multiprocessing.Process):
     class Orb:
-        def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0, motor = False) -> None:
+        def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0, motor = False, fps = 30) -> None:
             self.lim_x = limx
             self.lim_y = limy
             self.move_x = vecx
@@ -102,6 +102,13 @@ class Fireworks(multiprocessing.Process):
             for y in range(len(img[0])):
                 img[x][y] = matrix[y][x]
         self.pyghthouse.set_image(img)
+        
+        
+    @staticmethod
+    def get_instance(xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0):
+        new_instance = Fireworks()
+        new_instance.params(xsize, ysize, framequeue, commandqueue, fps, animspeed)
+        return new_instance
         
     def params(self, xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0) -> None:
         self.matrix = [[(0, 0, 0) for _ in range(ysize)] for _ in range(xsize)]

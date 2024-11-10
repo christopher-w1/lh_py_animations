@@ -72,6 +72,12 @@ class RainAnimation(multiprocessing.Process):
                 img[x][y] = matrix[y][x]
         self.pyghthouse.set_image(img)
         
+    @staticmethod
+    def get_instance(xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0):
+        new_instance = RainAnimation()
+        new_instance.params(xsize, ysize, framequeue, commandqueue, fps, animspeed)
+        return new_instance
+        
     def params(self, xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0) -> None:
         self.matrix = [[(0.0, 0.0, 0.0) for _ in range(ysize)] for _ in range(xsize)]
         self.lim_x = xsize-1

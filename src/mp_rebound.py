@@ -3,10 +3,11 @@ import color_functions as color
 import math, random, time, multiprocessing
 from stopwatch import Stopwatch
 from pyghthouse import Pyghthouse
+from color_functions import color_average, interpolate, hsv_to_rgb, multiply_val
 
 class ReboundAnimation(multiprocessing.Process):
     class Orb:
-        def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0) -> None:
+        def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0, hue = None) -> None:
             self.lim_x = limx
             self.lim_y = limy
             self.move_x = vecx
@@ -16,11 +17,16 @@ class ReboundAnimation(multiprocessing.Process):
             self.y = y
             #self.color = color.rand_vibrant_color(3)
             self.color = color.shift(color.rand_rgb_color(3), random.randint(0, 360))
+            if hue:
+                self.color = multiply_val(hsv_to_rgb(hue, 100, 100), 2)
             self.colorshift = colorshift
             self.loss_factor = random.uniform(0.99, 0.999)
             self.is_dead = False
             self.exists = 10
             self.hp = random.randint(100, 1000)
+            
+        def bounceAction(self):
+            self.is_dead = True
 
         def move(self) -> None:
             if self.exists > 1:
@@ -33,26 +39,29 @@ class ReboundAnimation(multiprocessing.Process):
             if new_x >= self.lim_x:
                 self.move_x = 0 - self.move_x
                 self.x = self.lim_x
-                #self.shift_color()
+                self.bounceAction()
+                
             elif new_x <= 0: 
                 self.move_x = 0 - self.move_x
                 self.x = 0
-                #self.shift_color()
+                self.bounceAction()
+                
             else:
                 self.x = new_x
 
             if new_y >= self.lim_y:
                 self.move_y = 0 - self.move_y
                 self.y = self.lim_y
+                self.bounceAction()
                 
             elif new_y <= 0:
                 self.move_y = 0 - self.move_y
                 self.y = 0
-                #self.shift_color()
+                self.bounceAction()
+                
             else: 
                 self.y = new_y      
 
-            self.apply_gravity()
             self.lose_energy()    
             self.shift_color()  
             self.decay()
@@ -87,6 +96,12 @@ class ReboundAnimation(multiprocessing.Process):
                 self.loss_factor = 1.01
             elif energy > 3:
                 self.loss_factor = 0.99
+
+    @staticmethod
+    def get_instance(xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0):
+        new_instance = ReboundAnimation()
+        new_instance.params(xsize, ysize, framequeue, commandqueue, fps, animspeed)
+        return new_instance
 
     def params(self, xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0) -> None:
         self.matrix = [[(0, 0, 0) for _ in range(ysize)] for _ in range(xsize)]
@@ -149,12 +164,32 @@ class ReboundAnimation(multiprocessing.Process):
 
     
     def add_rand_orb(self):
-        x = random.uniform(0, self.lim_x)
-        y = 1 #random.uniform(0, self.lim_y)
-        vecx = random.uniform(0.1, 1)
-        vecy = random.uniform(0.1, 1.5)
+        y = random.uniform(0, self.lim_y)
         colorshift = random.uniform(0.0, 1.0)*2
-        self.orbs.append(self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, colorshift))
+        vecy = 0
+        x = 0
+        vecx = random.uniform(0.1, 1)
+        hue = random.randint(0, 360)
+        self.orbs.append(self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, colorshift, hue))
+        
+        x = self.lim_x
+        vecx = 0 - vecx
+        hue = (hue+180) % 360
+        self.orbs.append(self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, colorshift, hue))
+        
+    def add_rand_orb_2(self):
+        y = random.uniform(0, self.lim_y)
+        vecy = 0
+        if random.randint(0, 1):
+            x = 0
+            vecx = random.uniform(0.1, 1)
+            hue = random.randint(0, 180)
+        else:
+            x = self.lim_x
+            vecx = random.uniform(-0.1, -1)
+            hue = random.randint(181,360)
+        colorshift = random.uniform(0.0, 1.0)*2
+        self.orbs.append(self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, colorshift, hue))
     
     def render_orb(self, orb):
         # Rendere den Orb auf der Matrix mit seiner aktuellen Position
@@ -172,10 +207,12 @@ class ReboundAnimation(multiprocessing.Process):
                         gradient_color = color.interpolate(orbcolor, (0,0,0), gradient_factor)
 
                         self.matrix[i][j] = color.brighten(gradient_color, self.matrix[i][j])
+                        #self.matrix[i][j] = color.interpolate(gradient_color, self.matrix[i][j], 0.5)
 
     
     def run(self):
         self.init_lighthouse()
+        blur_matrix = [[(0, 0, 0) for _ in range(self.lim_y+1)] for _ in range(self.lim_x+1)]
         while True:
 
             update_interval = 1/self.fps
@@ -183,7 +220,16 @@ class ReboundAnimation(multiprocessing.Process):
 
             for x in range(len(self.matrix)):
                 for y in range(len(self.matrix[0])):
-                    self.matrix[x][y] = color.shift(color.decay(self.matrix[x][y], 0.1), 0)
+                    blur_matrix[x][y] = color_average([
+                        self.matrix[max(0, min(x + i, len(self.matrix) - 1))][max(0, min(y + j, len(self.matrix[0]) - 1))]
+                        for i in [-1, 0, 1]
+                        for j in [-1, 0, 1]
+                    ])
+                    
+            for x in range(len(self.matrix)):
+                for y in range(len(self.matrix[0])):
+                    self.matrix[x][y] = interpolate(self.matrix[x][y], blur_matrix[x][y], 0.9)
+                    self.matrix[x][y] = color.shift(color.decay(self.matrix[x][y], 0.001), 5)
                     
             for orb in self.orbs:
                 self.render_orb(orb)
@@ -194,9 +240,9 @@ class ReboundAnimation(multiprocessing.Process):
                         self.add_rand_orb()
                         self.add_rand_orb()
                         
-            if len(self.orbs) > 25:
+            if len(self.orbs) > 15:
                 self.spawnmore = False
-            elif len(self.orbs) < 5:
+            elif len(self.orbs) < 10:
                 self.spawnmore = True
                 
             matrix = self.get_matrix()
@@ -215,10 +261,8 @@ class ReboundAnimation(multiprocessing.Process):
             wait = self.frametimer.remaining()
             
             time.sleep(wait)
-"""
+
 import main
 if __name__ == "__main__":
-    main.main("bouncy_orbs")
+    main.main()
     
-
-"""

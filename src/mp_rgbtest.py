@@ -5,6 +5,13 @@ from stopwatch import Stopwatch
 from pyghthouse import Pyghthouse
 
 class RgbTest(multiprocessing.Process):
+    
+    
+    @staticmethod
+    def get_instance(xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 60, animspeed = 1.0):
+        new_instance = RgbTest()
+        new_instance.params(xsize, ysize, framequeue, commandqueue, fps, animspeed)
+        return new_instance
 
     def params(self, xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 60, animspeed = 1.0) -> None:
         self.matrix = [[(0, 0, 0) for _ in range(ysize)] for _ in range(xsize)]

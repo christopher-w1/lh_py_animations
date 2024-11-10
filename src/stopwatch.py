@@ -25,6 +25,9 @@ class Stopwatch:
     def elapsed(self):
         return timeit.default_timer() - self.start_time
     
+    def has_elapsed(self):
+        return self.remaining_ms() < 1
+    
 """# Beispiel-Nutzung:
 stopwatch = Stopwatch()
 

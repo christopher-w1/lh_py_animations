@@ -78,6 +78,18 @@ def wash(color: tuple[int, int, int], keep_color=None) -> tuple[int, int, int]:
             
     return (r, g, b)
 
+def color_average(colors: list[tuple[int, int, int]]) -> tuple[int, int, int]:
+    r, g, b = 0, 0, 0
+    for lr, lg, lb in colors:
+        r+=lr
+        g+=lg
+        b+=lb
+    r/= len(colors)
+    g/= len(colors)
+    b/= len(colors)
+    return (r, g, b)
+        
+
 def wash_firy(color: tuple[int, int, int]) -> tuple[int, int, int]:
     r, g, b = color
     
@@ -204,7 +216,7 @@ def shift(color: tuple[int, int, int], shift_amount: int) -> tuple[int, int, int
     return (r, g, b)
 
 # Hilfsfunktionen für die Umwandlung zwischen RGB und HSV
-def rgb_to_hsv(r, g, b):
+def rgb_to_hsv(r: int, g: int, b: int):
     max_color = max(r, g, b)
     min_color = min(r, g, b)
 
@@ -223,9 +235,9 @@ def rgb_to_hsv(r, g, b):
     elif max_color == b:
         h = (60 * ((r - g) / (max_color - min_color)) + 240) % 360
 
-    return int(h), int(s * 100), int(v * 100)
+    return (int(h), int(s * 100), int(v * 100))
 
-def hsv_to_rgb(h, s, v):
+def hsv_to_rgb(h: int, s: int, v: int):
     h /= 360.0
     s /= 100.0
     v /= 100.0
@@ -253,7 +265,7 @@ def hsv_to_rgb(h, s, v):
         elif i % 6 == 5:
             r, g, b = int(255 * v), p, q
 
-    return r, g, b
+    return (r, g, b)
 
 def dither(color: tuple[int, int, int], dither_amount: int) -> tuple[int, int, int]:
     r, g, b = color

@@ -12,10 +12,11 @@ from mp_rebound import ReboundAnimation
 from mp_diffraction import DiffAnimation
 from stopwatch import Stopwatch
 
-
+# Initialisiere den globalen Timer
 timer = Stopwatch()
 
 def read_auth(filename="auth.txt"):
+    # Funktion zum Einlesen der Authentifizierungsdaten
     with open(filename) as src:
         username, token = None, None
         lines = src.readlines()
@@ -24,9 +25,6 @@ def read_auth(filename="auth.txt"):
             if len(line) == 2:
                 match line[0].strip().lower():
                     case 'name':
-                        username = line[1].strip()
-                        print(f"Username read from file: {username}")
-                    case 'username':
                         username = line[1].strip()
                         print(f"Username read from file: {username}")
                     case 'token':
@@ -53,156 +51,103 @@ class ScalableCanvas(tk.Canvas):
         self.timer.set(10)
 
     def scale_canvas(self, factor):
+        # Funktion zum Skalieren des Canvas
         self.scale_factor = factor
         self.config(width=self.original_width * factor, height=self.original_height * factor * self.y_distortion)
         self.master.geometry(f"{int((self.original_width + 2) * factor)}x{int((self.original_height + 3) * factor * self.y_distortion)}")
 
     def reset_counter(self):
+        # Funktion zum Zurücksetzen des FPS-Zählers
         anim_fps = self.frames_queued / (time.monotonic() - self.started)
         view_fps = self.frames_displayed / (time.monotonic() - self.started)
         self.frames_queued = anim_fps
         self.frames_displayed = view_fps
         self.started = time.monotonic()-1
-        
-        
-def stretch_matrix(matrix):
-    stretched_matrix = []
 
+def stretch_matrix(matrix):
+    # Funktion zum Strecken der Matrix
+    stretched_matrix = []
     for row in matrix:
         stretched_row = []
         for pixel in row:
             stretched_row.append(pixel)
             stretched_row.append(pixel)  # Füge den Pixel noch einmal hinzu, um ihn zu strecken
         stretched_matrix.append(stretched_row)
-
     return stretched_matrix
 
 def draw_rects(canvas: ScalableCanvas, matrix: tuple[int, int, int]):
-     
-    # Draw outline
+    # Funktion zum Zeichnen von Rechtecken auf dem Canvas
     canvas.create_rectangle(1 * canvas.scale_factor-1, 1 * canvas.scale_factor * canvas.y_distortion-1,
-                                (len(matrix) + 1) * canvas.scale_factor + 1, 2 * (len(matrix[0]) + 1) * canvas.scale_factor * canvas.y_distortion + 1,
-                                fill="black", outline="grey")
-    
-    # Iterate through matrix
+                            (len(matrix) + 1) * canvas.scale_factor + 1, 2 * (len(matrix[0]) + 1) * canvas.scale_factor * canvas.y_distortion + 1,
+                            fill="black", outline="grey")
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
-
-            # Extract color
             rgb = matrix[i][j]
-            
-            # Add offset
             x = i + 1
             y = 2 * (j + 1)
-
-            # Draw colored rectangle
             canvas.create_rectangle(x * canvas.scale_factor, y * canvas.scale_factor * canvas.y_distortion,
                                     (x + 1) * canvas.scale_factor, (y + 1) * canvas.scale_factor * canvas.y_distortion,
                                     fill="#%02x%02x%02x" % rgb)
 
+def cycle_animation(anim_list, anim_index, framequeue, commandqueue, username, token):
+    # Funktion zum Wechseln der Animation
+    new_anim = anim_list[anim_index]
+    anim_index = (anim_index + 1) % len(anim_list)  # Gehe zur nächsten Animation
+    new_anim.set_pyghthouse(username, token)
+    new_anim.start()
+    return anim_index
 
-def update_canvas(canvas: ScalableCanvas, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, root):
+def update_canvas(canvas: ScalableCanvas, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, root, anim_list, anim_index, username, token):
 
-    # Prepare timing parameters
-    update_interval = 1 / (canvas.fps_target) * 3
+    update_interval = 1 / canvas.fps_target * 3
     canvas.timer.set(update_interval)
     wait = 1
     
-    # Check if we have new frames
     if not framequeue.empty():
-
-        # Get the newest frame that is ready
         matrix = framequeue.get()
         while not framequeue.empty(): 
             matrix = framequeue.get_nowait()
-
-        # Draw matrix as rectangles on canvas
         canvas.delete("all")
         draw_rects(canvas, matrix)
         
-        # Keep animation process running
-        
-        if not timer.has_elapsed():
-            print(timer.remaining_ms())
-            commandqueue.put("keep_running")
-        else:
-            commandqueue.put("stop")  # Send stop command
-            root.destroy()            # Close the window and stop the program
-            return 
+        # Prüfe, ob 10 Sekunden abgelaufen sind und die Animation gewechselt werden soll
+        if timer.has_elapsed():
+            anim_index = cycle_animation(anim_list, anim_index, framequeue, commandqueue, username, token)
+            timer.set(10)  # Setze den Timer zurück
 
-        # Wait remaining time until the next frame is needed
+        commandqueue.put("keep_running")
         wait = canvas.timer.remaining_ms(1)
-        
 
-    root.after(wait, update_canvas, canvas, framequeue, commandqueue, root)
-            
+    root.after(wait, update_canvas, canvas, framequeue, commandqueue, root, anim_list, anim_index, username, token)
 
-            
 def main(animation=None):
-    
     username, token = read_auth()
     if not username or not token:
         exit(1)
-        
-    animations = [Fireworks(), Lavablobs(), RgbTest(), RainAnimation(), ReboundAnimation(), DiffAnimation(), Bouncers()]
     
-    text_input = ""
-    while not text_input or not text_input.split()[0].isnumeric():
-        
-        print("\nStart animation by typing:\n N --option")
-        
-        print("\nAvailable animations:")
-        print(" | ".join([f"[{i}] {anim.name}" for i, anim in enumerate(animations)]))
-        print("Available options: --gui")
-        
-        text_input = input()
-
-    options = text_input.split()[1:] if len(text_input.split()) > 1 else ""
+    # Liste der Animationen
+    anim_list = [Fireworks(), Lavablobs(), RgbTest(), RainAnimation(), Bouncers(), ReboundAnimation(), DiffAnimation()]
+    anim_index = 0  # Startindex der Animation
 
     fps = 40
-    
     global timer
-    timer.set(10)
-    
+    timer.set(10)  # Initialer Timer für 10 Sekunden
 
     framequeue = multiprocessing.Queue()
     commandqueue = multiprocessing.Queue()
+    anim = anim_list[anim_index]
+    
+    root = tk.Tk()
+    root.title("Lighthouse Animation")
+    canvas = ScalableCanvas(root, width=28, height=28, bg="black")
+    canvas.pack(expand=tk.YES, fill=tk.BOTH)
+    canvas.fps_target = fps
+    root.after(100, update_canvas, canvas, framequeue, commandqueue, root, anim_list, anim_index, username, token)
 
-
-    if '--gui' in options:
-        root = tk.Tk()
-        root.title("Lighthouse Animation")
-         
-        canvas = ScalableCanvas(root, width=28, height=28, bg="black")
-        canvas.pack(expand=tk.YES, fill=tk.BOTH)
-        canvas.fps_target = fps
-
-        animation_interval = 100  # Intervall in Millisekunden
-        root.after(animation_interval, update_canvas, canvas, framequeue, commandqueue, root)  # Erste Animation starten
-
-    n = int(text_input.split()[0])
-    anim = animations[n].get_instance(28, 27, framequeue, commandqueue, fps=fps, animspeed = 1)
     anim.params(28, 27, framequeue, commandqueue, fps=fps, animspeed = 1)
     anim.set_pyghthouse(username, token)
     anim.start()
-    
-    if '--gui' in options:
-        root.mainloop()
-    else:    
-        while True:    
-            # Check if we have new frames
-            if not framequeue.empty():
+    root.mainloop()
 
-                while not framequeue.empty(): 
-                    _ = framequeue.get_nowait()
-                
-                # Keep animation process running
-                commandqueue.put("keep_running")
-            time.sleep(0.1)
-            
-    anim.join()
-    print("Thread joined.")
-    anim.close()
-    
 if __name__ == "__main__":
     main()
