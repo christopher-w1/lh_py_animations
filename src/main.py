@@ -8,6 +8,7 @@ from mp_bouncers import BounceAnimation as Bouncers
 from mp_lavablob import Lavablobs
 from mp_rgbtest import RgbTest
 from mp_rain import RainAnimation
+from mp_rebound import ReboundAnimation
 from stopwatch import Stopwatch
 
 
@@ -141,6 +142,8 @@ def main(animation, username, token):
             anim = RgbTest()
         case "rain":
             anim = RainAnimation()
+        case "rebound":
+            anim = ReboundAnimation()
         case _:
             anim = Bouncers()
 
@@ -181,6 +184,7 @@ if __name__ == "__main__":
         exit(1)
     print("Pick an animation:")
     print("fireworks, lava, test, rain, bouncy_orbs")
-    x = input()
-    main(x, username, token)
+    #x = input()
+    main("rebound gui", username, token)
+    #main(x, username, token)
 
