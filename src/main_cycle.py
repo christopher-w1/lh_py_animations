@@ -8,8 +8,9 @@ from mp_rgbtest import RgbTest
 from mp_rain import RainAnimation
 from mp_rebound import ReboundAnimation
 from mp_diffraction import DiffAnimation
+from mp_conway import GameOfLife
 from stopwatch import Stopwatch
-from color_functions import interpolate
+from color_functions import interpolate, cycle
 
 class AnimationController():   
     def __init__(self, time_per_anim) -> None:
@@ -68,7 +69,9 @@ class AnimationController():
         if not username or not token:
             exit(1)
             
-        animations = [Fireworks(), 
+        animations = [
+                    GameOfLife(),
+                    Fireworks(), 
                     Lavablobs(),
                     #RgbTest(), 
                     RainAnimation(), 
@@ -76,22 +79,22 @@ class AnimationController():
                     DiffAnimation(), 
                     Bouncers()]
         
-        fps = 40
+        fps = 60
         
         ph = Pyghthouse(username, token)
         ph.start()
         
         anim_timer = Stopwatch()
         frametimer = Stopwatch() 
-        update_interval = 1/(fps-1)
+        update_interval = 1/(fps)
         n = 0
         while self.keep_going:
             framequeue = multiprocessing.Queue()
             commandqueue = multiprocessing.Queue()
             anim_timer.set(time_per_anim)
-            anim = animations[n].get_instance(28, 27, framequeue, commandqueue, fps=fps, animspeed = 1)
+            anim = animations[n].get_instance(28, 27, framequeue, commandqueue, fps=fps)
             print(f"Starting animation '{anim.name}' for {time_per_anim} seconds.")
-            anim.params(28, 27, framequeue, commandqueue, fps=fps, animspeed = 1)
+            #anim.params(28, 27, framequeue, commandqueue, fps=fps)
             anim.start()
             
             image = Pyghthouse.empty_image()

@@ -3,19 +3,14 @@ import color_functions as color
 import math, random, multiprocessing, time
 from pyghthouse import Pyghthouse
 
-def timedither(factor = 1.0):
-    if factor == 1: return True
-    val = random.randint(1, int (10/factor))
-    return val <= 10
-
 X_Scale = 0.7
 BRIGHTNESS = 0.5
 GAMMA = 1.5
 PRESERVE_COLOR = 0.5
 
 class Fireworks(multiprocessing.Process):
-    class Orb:
-        def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0, motor = False, fps = 30) -> None:
+    class Orb():
+        def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0, motor = False, fps = 30, spd=1.0) -> None:
             self.lim_x = limx
             self.lim_y = limy
             self.move_x = vecx
@@ -34,6 +29,7 @@ class Fireworks(multiprocessing.Process):
             self.weight = 1
             self.motor = motor
             self.pyghthouse = None
+            self.animspeed = spd
             
         def set_pyghthouse(self, ph):
             self.pyghthouse = ph
@@ -45,8 +41,8 @@ class Fireworks(multiprocessing.Process):
             if self.blend_in > 1:
                 self.blend_in -= 1
 
-            new_x = self.x + self.move_x
-            new_y = self.y + self.move_y
+            new_x = self.x + self.move_x*self.animspeed
+            new_y = self.y + self.move_y*self.animspeed
 
             if new_y >= self.lim_y:
                 self.move_y = 0
@@ -66,19 +62,19 @@ class Fireworks(multiprocessing.Process):
             self.color = color.shift(self.color, self.colorshift)
 
         def apply_gravity(self):
-            g = 0.03
+            g = 0.03*self.animspeed
             if self.motor:
                 self.move_x += (self.move_x * abs(self.move_y * g * self.weight))
             else:
                 self.move_y += (g * self.weight)
 
         def lose_energy(self):
-            self.move_x *= self.loss_factor
-            self.move_y *= self.loss_factor
+            self.move_x *= (self.loss_factor ** self.animspeed)
+            self.move_y *= (self.loss_factor ** self.animspeed)
 
         def decay(self):
             if self.level != 2 and math.sqrt(math.pow(self.move_x, 2) + math.pow(self.move_y, 2)) < (0.01):
-                self.hp -= 5
+                self.hp -= 5 * self.animspeed
             if self.hp > 0:
                 self.hp -= 1
             else:
@@ -92,7 +88,7 @@ class Fireworks(multiprocessing.Process):
         self._stop_event.set()
         
     @staticmethod
-    def get_instance(xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0):
+    def get_instance(xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 0.5):
         new_instance = Fireworks()
         new_instance.daemon = True
         new_instance._stop_event = multiprocessing.Event()
@@ -147,10 +143,10 @@ class Fireworks(multiprocessing.Process):
         x = random.uniform(0, self.lim_x)
         y = self.lim_y-1
         has_motor = random.randint(0, 1) == 0
-        vecx = random.uniform(-0.1, 0.5) if x < (self.lim_x//2) else random.uniform(0.1, -0.5)
+        vecx = (random.uniform(-0.1, 0.5) if x < (self.lim_x//2) else random.uniform(0.1, -0.5))
         vecy = random.uniform(-0.7, -0.8)*1.5 / (1 + has_motor)
-        elem = self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, 0, has_motor)
-        elem.hp = int((10 + random.randint(0, 60)))
+        elem = self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, 0, has_motor, spd = self.animspeed)
+        elem.hp = int((10 + random.randint(0, 60))) 
         elem.level = 2
         elem.blend_in = int(2)+1
         elem.loss_factor = 1
@@ -158,7 +154,7 @@ class Fireworks(multiprocessing.Process):
         self.orbs.append(elem)
 
     def add_expl(self, x, y, vecx, vecy, color):
-        elem = self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, random.randint(0,5))
+        elem = self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, random.randint(0,5), spd = self.animspeed)
         smaller = (random.randint(0, 1))
         elem.level = 0
         elem.radius = 4 - smaller
@@ -170,7 +166,7 @@ class Fireworks(multiprocessing.Process):
         self.orbs.append(elem)
         
     def add_twinkle(self, x, y, vecx, vecy, color):
-        elem = self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, random.randint(0,5))
+        elem = self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, random.randint(0,5), spd = self.animspeed)
         elem.level = 3
         elem.radius = 4 + (random.randint(0, 2))
         elem.hp = int((20 + random.randint(0, 10)))
@@ -237,28 +233,26 @@ class Fireworks(multiprocessing.Process):
             for orb in self.orbs:           
                 self.render_orb(orb)
                 
-                if timedither(self.animspeed):
-                    orb.move()
-                    x, y, mx, my, col, lv = orb.getData()
-                    if orb.is_dead:
-                        self.orbs.remove(orb)
-                    if orb.hp < 1 and orb.level == 2:
-                        self.add_rocket()
-                        orb.level = -1
-                        if orb.y < 20:
-                            x, y, mx, my, col, _ = orb.getData()
-                            if random.randint(0,2) == 1 and orb.y > 10:
-                                self.add_tracers(x, y, (320,192,0), speed= 0.33, weight = 0.33)
-                            else:
-                                for _ in range(random.randint(1, 2)):
-                                    self.add_tracers(x, y, color.gamma(col, 2))
-                            if random.randint(0,1) == 1:
-                                self.add_expl(x, y, mx, my, color.multiply_val(col, random.randint(3, 8)))
-                                self.add_twinkle(x, y, mx, my, color.multiply_val(col, 4))
-                            else:
-                                self.add_expl(x, y, mx, my, color.gamma(col, 3))
-                                #self.add_expl(x, y, mx, my, color.multiply_val(col, random.randint(3, 8)))
-                            #print(x, y, mx, my, col)
+                orb.move()
+                x, y, mx, my, col, lv = orb.getData()
+                if orb.is_dead:
+                    self.orbs.remove(orb)
+                if orb.hp < 1 and orb.level == 2:
+                    self.add_rocket()
+                    orb.level = -1
+                    if orb.y < 20:
+                        x, y, mx, my, col, _ = orb.getData()
+                        if random.randint(0,2) == 1 and orb.y > 10:
+                            self.add_tracers(x, y, (320,192,0), speed= 0.33, weight = 0.33)
+                        else:
+                            for _ in range(random.randint(1, 2)):
+                                self.add_tracers(x, y, color.gamma(col, 2))
+                        if random.randint(0,1) == 1:
+                            self.add_expl(x, y, mx, my, color.multiply_val(col, random.randint(3, 8)))
+                            self.add_twinkle(x, y, mx, my, color.multiply_val(col, 4))
+                        else:
+                            self.add_expl(x, y, mx, my, color.gamma(col, 3))
+
                     elif orb.level == 0:
                         orb.radius += 1
                     elif orb.level == 3 and len(self.orbs) < 20 and random.randint(1, 100) == 1:

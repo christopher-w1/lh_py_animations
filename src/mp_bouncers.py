@@ -6,7 +6,7 @@ from pyghthouse import Pyghthouse
 
 class BounceAnimation(multiprocessing.Process):
     class Orb:
-        def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0) -> None:
+        def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0, animspeed = 1.0) -> None:
             self.lim_x = limx
             self.lim_y = limy
             self.move_x = vecx
@@ -21,13 +21,14 @@ class BounceAnimation(multiprocessing.Process):
             self.is_dead = False
             self.exists = 10
             self.hp = random.randint(100, 1000)
+            self.animspeed = animspeed
 
         def move(self) -> None:
             if self.exists > 1:
                 self.exists -= 1
 
-            new_x = self.x + self.move_x
-            new_y = self.y + self.move_y
+            new_x = self.x + self.move_x * self.animspeed
+            new_y = self.y + self.move_y * self.animspeed
 
             # Bounce
             if new_x >= self.lim_x:
@@ -62,7 +63,7 @@ class BounceAnimation(multiprocessing.Process):
             self.color = color.shift(self.color, self.colorshift)
 
         def apply_gravity(self):
-            g = 0.03
+            g = 0.03 * self.animspeed
             self.move_y += g
 
         def lose_energy(self):
@@ -71,7 +72,7 @@ class BounceAnimation(multiprocessing.Process):
 
         def decay(self):
             if math.sqrt(math.pow(self.move_x, 2) + math.pow(self.move_y, 2)) < 0.1:
-                self.hp -= 50
+                self.hp -= 50 * self.animspeed
             if self.hp > 0:
                 self.hp -= 1
             else:
@@ -100,6 +101,7 @@ class BounceAnimation(multiprocessing.Process):
 
     def params(self, xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0) -> None:
         self.matrix = [[(0, 0, 0) for _ in range(ysize)] for _ in range(xsize)]
+        self.animspeed = animspeed
         self.lim_x = xsize-1
         self.lim_y = ysize-1
         self.queue = framequeue
@@ -150,7 +152,7 @@ class BounceAnimation(multiprocessing.Process):
         vecx = random.uniform(0.1, 1)
         vecy = random.uniform(0.1, 1.5)
         colorshift = random.uniform(0.0, 1.0)*2
-        self.orbs.append(self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, colorshift))
+        self.orbs.append(self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, colorshift, animspeed=self.animspeed))
     
     def render_orb(self, orb):
         # Rendere den Orb auf der Matrix mit seiner aktuellen Position
