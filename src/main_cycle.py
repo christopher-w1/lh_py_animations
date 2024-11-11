@@ -19,9 +19,9 @@ class AnimationController():
         self.displayqueue = None
         self.name = "JhController"
         signal.signal(signal.SIGINT, self._handle_sigint)
-        self.run(time_per_anim)
         self.local = local
-        self.remote = local
+        self.remote = remote
+        self.run(time_per_anim)
 
     @staticmethod     
     def read_auth(filename="auth.txt"):
@@ -131,9 +131,12 @@ class AnimationController():
             n = (n+1) % len(animations)
     
 if __name__ == "__main__":
-    time_per_anim=30
     if len(sys.argv) > 1:
-        int(sys.argv[1])
+        time_per_anim = int(sys.argv[1])
         local = '--local' in sys.argv or '--gui' in sys.argv
         remote = not '--local' in sys.argv
-    AnimationController(time_per_anim, local, remote)
+        AnimationController(time_per_anim, local, remote)
+    else:
+        print(f"Usage: {sys.argv[0]} [TIME] [OPTIONS]")
+        print("Whereas [TIME] = time in seconds and possible options are:")
+        print("--local --gui")
