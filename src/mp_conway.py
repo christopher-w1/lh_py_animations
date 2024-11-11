@@ -32,7 +32,14 @@ class GameOfLife(multiprocessing.Process):
     def reset_grid(self):
         self.grid = np.random.choice([0, 1], size=(self.xsize, self.ysize))
         self.transition_grid = np.copy(self.grid) 
-
+        
+    def is_static(self):
+        for i in range(len(self.grid)):
+            for j in range(len(self.grid[0])):
+                if self.grid[i][j] != self.transition_grid[i][j]:
+                    return False
+        return True
+                
     def count_neighbors(self, x, y):
         neighbors = [
             (x-1, y-1), (x-1, y), (x-1, y+1),
@@ -84,7 +91,7 @@ class GameOfLife(multiprocessing.Process):
             # Prüfen, ob es Zeit für das nächste Grid-Update ist
             if step >= self.fade_steps:
                 self.update_grid()
-                if np.array_equal(self.grid, self.transition_grid):
+                if self.is_static():
                     print("Grid and transition grid are identical, resetting grid.")
                     self.reset_grid()
                 step = 0  # Zurücksetzen der Schritte für die Überblendung
