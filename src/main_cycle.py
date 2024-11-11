@@ -21,6 +21,7 @@ class AnimationController():
         signal.signal(signal.SIGINT, self._handle_sigint)
         self.local = local
         self.remote = remote
+        self.ph = None
         self.run(time_per_anim)
 
     @staticmethod     
@@ -47,14 +48,14 @@ class AnimationController():
                 print(f"Error: File {filename} is incomplete!")
             return username, token
         
-    def send_frame(self, ph: Pyghthouse, image: list, factor: float):
-        img = ph.empty_image()
-        if self.remote:
-            for x in range(min(len(img), len(image[0]))):
-                for y in range(min(len(img[0]), len(image))):
-                    img[x][y] = interpolate(image[y][x], img[x][y], factor) if factor < 1.0 else image[y][x]
-            ph.set_image(img)
-        if self.local and self.displayqueue:
+    def send_frame(self, image: list, factor: float):
+        img = Pyghthouse.empty_image()
+        for x in range(min(len(img), len(image[0]))):
+            for y in range(min(len(img[0]), len(image))):
+                img[x][y] = interpolate(image[y][x], img[x][y], factor) if factor < 1.0 else image[y][x]
+        if self.ph:
+            self.ph.set_image(img)
+        if self.displayqueue:
             self.displayqueue.put_nowait(img)
         
     def _handle_sigint(self, signum, frame):
@@ -108,10 +109,10 @@ class AnimationController():
                 while not framequeue.empty(): 
                     image = framequeue.get_nowait()
                 if opacity < 255:
-                    self.send_frame(ph, image, opacity/256)
+                    self.send_frame(image, opacity/256)
                     opacity += 4
                 else:
-                    self.send_frame(ph, image, 1.0)
+                    self.send_frame(image, 1.0)
                 commandqueue.put("keep_running")
                 time.sleep(frametimer.remaining())
                 
@@ -119,7 +120,7 @@ class AnimationController():
                 frametimer.set(update_interval)
                 while not framequeue.empty(): 
                     image = framequeue.get_nowait()
-                self.send_frame(ph, image, i/256)
+                self.send_frame(image, i/256)
                 commandqueue.put("keep_running")
                 time.sleep(frametimer.remaining())
                     
