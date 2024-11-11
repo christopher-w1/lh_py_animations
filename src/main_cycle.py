@@ -1,6 +1,7 @@
 import tkinter as tk
 import multiprocessing, time, sys, signal
 from pyghthouse.ph import Pyghthouse
+from local_display import LocalDisplay, start_local_display
 from mp_firework import Fireworks
 from mp_bouncers import BounceAnimation as Bouncers
 from mp_lavablob import Lavablobs
@@ -13,12 +14,15 @@ from stopwatch import Stopwatch
 from color_functions import interpolate, cycle
 
 class AnimationController():   
-    def __init__(self, time_per_anim) -> None:
+    def __init__(self, time_per_anim, local = False, remote = True) -> None:
         self.keep_going = True
+        self.displayqueue = None
+        self.name = "JhController"
         signal.signal(signal.SIGINT, self._handle_sigint)
         self.run(time_per_anim)
-        
-    
+        self.local = local
+        self.remote = local
+
     @staticmethod     
     def read_auth(filename="auth.txt"):
         with open(filename) as src:
@@ -42,22 +46,16 @@ class AnimationController():
             if not username or not token:
                 print(f"Error: File {filename} is incomplete!")
             return username, token
-
-    @staticmethod     
-    def send_frame(ph: Pyghthouse, image: list): 
-        img = ph.empty_image()
-        for x in range(min(len(img), len(image[0]))):
-            for y in range(min(len(img[0]), len(image))):
-                img[x][y] = image[y][x]
-        ph.set_image(img)
         
-    @staticmethod     
-    def send_faded_frame(ph: Pyghthouse, image: list, factor: float):
+    def send_frame(self, ph: Pyghthouse, image: list, factor: float):
         img = ph.empty_image()
-        for x in range(min(len(img), len(image[0]))):
-            for y in range(min(len(img[0]), len(image))):
-                img[x][y] = interpolate(image[y][x], img[x][y], factor) 
-        ph.set_image(img)
+        if self.remote:
+            for x in range(min(len(img), len(image[0]))):
+                for y in range(min(len(img[0]), len(image))):
+                    img[x][y] = interpolate(image[y][x], img[x][y], factor) if factor < 1.0 else image[y][x]
+            ph.set_image(img)
+        if self.local and self.displayqueue:
+            self.displayqueue.put_nowait(img)
         
     def _handle_sigint(self, signum, frame):
         print("Ctrl+C detected. Stopping animations...")
@@ -65,9 +63,13 @@ class AnimationController():
         
     ##### RUN METHOD #####
     def run(self, time_per_anim):
-        username, token = self.read_auth()
-        if not username or not token:
-            exit(1)
+        
+        if self.remote:
+            username, token = self.read_auth()
+            if not username or not token:
+                exit(1)
+            ph = Pyghthouse(username, token)
+            ph.start()
             
         animations = [
                     GameOfLife(),
@@ -81,13 +83,15 @@ class AnimationController():
         
         fps = 60
         
-        ph = Pyghthouse(username, token)
-        ph.start()
         
         anim_timer = Stopwatch()
         frametimer = Stopwatch() 
         update_interval = 1/(fps)
         n = 0
+        if self.local:
+            self.displayqueue = multiprocessing.Queue()
+            display_process = multiprocessing.Process(target=start_local_display, args=(self.displayqueue,fps))
+            display_process.start()
         while self.keep_going:
             framequeue = multiprocessing.Queue()
             commandqueue = multiprocessing.Queue()
@@ -104,10 +108,10 @@ class AnimationController():
                 while not framequeue.empty(): 
                     image = framequeue.get_nowait()
                 if opacity < 255:
-                    self.send_faded_frame(ph, image, opacity/256)
+                    self.send_frame(ph, image, opacity/256)
                     opacity += 4
                 else:
-                    self.send_frame(ph, image)
+                    self.send_frame(ph, image, 1.0)
                 commandqueue.put("keep_running")
                 time.sleep(frametimer.remaining())
                 
@@ -115,7 +119,7 @@ class AnimationController():
                 frametimer.set(update_interval)
                 while not framequeue.empty(): 
                     image = framequeue.get_nowait()
-                self.send_faded_frame(ph, image, i/256)
+                self.send_frame(ph, image, i/256)
                 commandqueue.put("keep_running")
                 time.sleep(frametimer.remaining())
                     
@@ -127,5 +131,9 @@ class AnimationController():
             n = (n+1) % len(animations)
     
 if __name__ == "__main__":
-    time_per_anim=int(sys.argv[1]) if len(sys.argv) > 1 else 30
-    AnimationController(time_per_anim)
+    time_per_anim=30
+    if len(sys.argv) > 1:
+        int(sys.argv[1])
+        local = '--local' in sys.argv or '--gui' in sys.argv
+        remote = not '--local' in sys.argv
+    AnimationController(time_per_anim, local, remote)
