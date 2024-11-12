@@ -1,7 +1,7 @@
 import tkinter as tk
 import multiprocessing, time, sys, signal
 from pyghthouse.ph import Pyghthouse
-from local_display import LocalDisplay, start_local_display
+from local_display import DisplayProcess
 from mp_firework import Fireworks
 from mp_bouncers import BounceAnimation as Bouncers
 from mp_lavablob import Lavablobs
@@ -94,7 +94,7 @@ class AnimationController():
         n = 0
         if self.local:
             self.displayqueue = multiprocessing.Queue()
-            self.displayprocess = multiprocessing.Process(target=start_local_display, args=(self.displayqueue,fps))
+            self.displayprocess = DisplayProcess(self.displayqueue,fps)
             self.displayprocess.start()
         while self.keep_going:
             framequeue = multiprocessing.Queue()
@@ -128,16 +128,19 @@ class AnimationController():
                 time.sleep(frametimer.remaining())
                     
             #Fireworks().terminate()
-            print("Attempting to terminate subprocesses...")
             anim.stop()
             anim.join(timeout = 2)
-            print("Animation process terminated.")
+            print("Animation terminated.")
             n = (n+1) % len(animations)
-        if self.displayqueue:
-            self.displayqueue.put("stop")
         if self.displayprocess:
-            print("Attempting to terminate local display...")
+            print("Attempting to terminate subprocesses...")
+            self.displayprocess.stop()
             self.displayprocess.join(timeout = 2)
+            if self.displayprocess.is_alive():
+                self.displayprocess.terminate()
+                self.displayprocess.join()  
+            else:
+                print("Display terminated successfully.")
         exit(0)
         
     
@@ -148,6 +151,6 @@ if __name__ == "__main__":
         remote = not '--local' in sys.argv
         AnimationController(time_per_anim, local, remote)
     else:
-        print(f"Usage: {sys.argv[0]} [TIME] [OPTIONS]")
+        print(f"Usage:  {sys.argv[0]} [TIME] [OPTIONS]")
         print("Whereas [TIME] = time in seconds and possible options are:")
         print("--local --gui")
