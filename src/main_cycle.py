@@ -10,6 +10,7 @@ from mp_rain import RainAnimation
 from mp_rebound import ReboundAnimation
 from mp_diffraction import DiffAnimation
 from mp_conway import GameOfLife
+from mp_scrolltext import ScrollText
 from stopwatch import Stopwatch
 from color_functions import interpolate, cycle
 
@@ -80,7 +81,8 @@ class AnimationController():
                     RainAnimation(), 
                     ReboundAnimation(), 
                     DiffAnimation(), 
-                    Bouncers()]
+                    Bouncers(),
+                    ScrollText()]
         
         fps = 60
         
