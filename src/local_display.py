@@ -56,6 +56,8 @@ class DisplayProcess(multiprocessing.Process):
         self.framequeue = framequeue
         self.stop_event = multiprocessing.Event()
         self.fps = fps
+        while self.fps > 30:
+            self.fps /= 2
         self.display = None
 
     def run(self):
