@@ -27,6 +27,7 @@ class AnimationController():
         self.displayprocess = None
         self.user = user
         self.token = token
+        self.fps = fps
         self.run(time_per_anim)
 
     def read_auth(self, filename="auth.txt"):
