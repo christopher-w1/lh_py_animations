@@ -22,6 +22,7 @@ class AnimationController():
         self.local = local
         self.remote = remote
         self.ph = None
+        self.displayprocess = None
         self.run(time_per_anim)
 
     @staticmethod     
@@ -91,8 +92,8 @@ class AnimationController():
         n = 0
         if self.local:
             self.displayqueue = multiprocessing.Queue()
-            display_process = multiprocessing.Process(target=start_local_display, args=(self.displayqueue,fps))
-            display_process.start()
+            self.displayprocess = multiprocessing.Process(target=start_local_display, args=(self.displayqueue,fps))
+            self.displayprocess.start()
         while self.keep_going:
             framequeue = multiprocessing.Queue()
             commandqueue = multiprocessing.Queue()
@@ -125,11 +126,18 @@ class AnimationController():
                 time.sleep(frametimer.remaining())
                     
             #Fireworks().terminate()
-            print("Attempting to terminate process...")
+            print("Attempting to terminate subprocesses...")
             anim.stop()
             anim.join(timeout = 2)
-            print("Child process terminated.")
+            print("Animation process terminated.")
             n = (n+1) % len(animations)
+        if self.displayqueue:
+            self.displayqueue.put("stop")
+        if self.displayprocess:
+            print("Attempting to terminate local display...")
+            self.displayprocess.join(timeout = 2)
+        exit(0)
+        
     
 if __name__ == "__main__":
     if len(sys.argv) > 1:
