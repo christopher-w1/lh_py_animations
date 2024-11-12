@@ -1,4 +1,4 @@
-import timeit, time
+import time
 
 class Stopwatch:
     def __init__(self):
@@ -6,7 +6,7 @@ class Stopwatch:
         self.stoptime = None
 
     def reset(self):
-        self.start_time = timeit.default_timer()
+        self.start_time = time.perf_counter()
         self.stoptime = self.start_time
 
     def set(self, from_now: float):
@@ -16,7 +16,7 @@ class Stopwatch:
         Args:
             from_now (float): Time in seconds
         """
-        self.start_time = timeit.default_timer()
+        self.start_time = time.perf_counter()
         self.stoptime = self.start_time + from_now
 
     def remaining(self) -> float:
@@ -28,7 +28,7 @@ class Stopwatch:
         """
         if self.start_time is None:
             raise ValueError("Stopwatch has not been started. Call set() to start the stopwatch.")
-        current = timeit.default_timer()
+        current = time.perf_counter()
         return 0 if current > self.stoptime else self.stoptime - current
     
     def remaining_ms(self, min = 0):
@@ -41,7 +41,7 @@ class Stopwatch:
         return int(max(min, self.remaining() * 1000 + 0.5))
     
     def elapsed(self):
-        return timeit.default_timer() - self.start_time
+        return time.perf_counter() - self.start_time
     
     def has_elapsed(self):
         return self.remaining_ms() < 1
