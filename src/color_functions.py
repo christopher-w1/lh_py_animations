@@ -37,6 +37,20 @@ def rand_metal_color(intensity: float):
     
     return (r * intensity, g * intensity, b * intensity)
 
+def rand_faculty_color(intensity: float):
+    faculties = {
+        'theology': (86,35,129),
+        'law': (228,49,23),
+        'medicine': (153,194,33),
+        'philosophy': (106,172,218),
+        'agriculture/nutritional': (57,132,46),
+        'mathematics/science': (242,148,0),
+        'economics/social': (0,103,124),
+        'technical': (0,61,134),
+    }
+    r, g, b = random.choice(list(faculties.values()))
+    return (r * intensity, g * intensity, b * intensity)
+
 def rand_rgb_color(intensity: float):
     high = 255*intensity
     mid = 0

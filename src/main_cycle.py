@@ -10,6 +10,7 @@ from mp_rain import RainAnimation
 from mp_rebound import ReboundAnimation
 from mp_diffraction import DiffAnimation
 from mp_conway import GameOfLife
+from mp_scrolltext import ScrollText
 from stopwatch import Stopwatch
 from color_functions import interpolate, cycle
 
@@ -70,8 +71,8 @@ class AnimationController():
             username, token = self.read_auth()
             if not username or not token:
                 exit(1)
-            ph = Pyghthouse(username, token)
-            ph.start()
+            self.ph = Pyghthouse(username, token)
+            self.ph.start()
             
         animations = [
                     GameOfLife(),
@@ -81,7 +82,8 @@ class AnimationController():
                     RainAnimation(), 
                     ReboundAnimation(), 
                     DiffAnimation(), 
-                    Bouncers()]
+                    Bouncers(),
+                    ScrollText()]
         
         fps = 60
         
