@@ -15,7 +15,8 @@ class RainAnimation(multiprocessing.Process):
             self.x = x
             self.y = y
             #self.color = color.rand_vibrant_color(3)
-            self.color = color.rand_metal_color(2)
+            #self.color = color.rand_metal_color(2)
+            self.color = color.rand_faculty_color(2)
             self.colorshift = colorshift
             self.loss_factor = random.uniform(0.99, 0.999)
             self.alive = True
