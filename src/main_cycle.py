@@ -69,8 +69,8 @@ class AnimationController():
             username, token = self.read_auth()
             if not username or not token:
                 exit(1)
-            ph = Pyghthouse(username, token)
-            ph.start()
+            self.ph = Pyghthouse(username, token)
+            self.ph.start()
             
         animations = [
                     GameOfLife(),
