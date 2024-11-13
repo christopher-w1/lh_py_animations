@@ -1,4 +1,4 @@
-import color_functions as color
+import color_functions as clr
 import math, random
 
 class BounceAnimation:
@@ -11,7 +11,7 @@ class BounceAnimation:
             self.radius = 2
             self.x = x
             self.y = y
-            self.color = color.shift(color.rand_rgb_color(3), random.randint(0, 360))
+            self.color = clr.shift(clr.rand_rgb_color(3), random.randint(0, 360))
             self.colorshift = colorshift
             self.loss_factor = random.uniform(0.99, 0.999)
             self.is_dead = False
@@ -51,7 +51,7 @@ class BounceAnimation:
             self.decay()
             
         def shift_color(self):
-            self.color = color.shift(self.color, self.colorshift)
+            self.color = clr.shift(self.color, self.colorshift)
 
         def apply_gravity(self):
             g = 0.03 * self.animspeed
@@ -68,7 +68,7 @@ class BounceAnimation:
                 self.hp -= 1
             else:
                 self.loss_factor = 0.97
-                self.color = color.decay(self.color, 0.03)
+                self.color = clr.decay(self.color, 0.03)
                 r, g, b = self.color
                 if r + g + b < 1:
                     self.is_dead = True
@@ -100,7 +100,7 @@ class BounceAnimation:
     def get_frame(self):
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
-                self.matrix[x][y] = color.shift(color.decay(self.matrix[x][y], 0.1), 0)
+                self.matrix[x][y] = clr.shift(clr.decay(self.matrix[x][y], 0.1), 0)
 
         for orb in self.orbs:
             self._render_orb(orb)
@@ -119,7 +119,7 @@ class BounceAnimation:
         output_matrix = [row[:] for row in self.matrix]
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
-                output_matrix[x][y] = color.wash(self.matrix[x][y])
+                output_matrix[x][y] = clr.wash(self.matrix[x][y])
         return self._collapse_matrix(output_matrix) 
 
     def _collapse_matrix(self, matrix):
@@ -156,7 +156,7 @@ class BounceAnimation:
                 if 0 <= i < len(self.matrix) and 0 <= j < len(self.matrix[0]):
                     distance = math.sqrt((i - orb.x) ** 2 + (j - orb.y) ** 2)
                     if distance <= orb.radius:
-                        orbcolor = color.gamma(orb.color, 1 / orb.exists)
+                        orbcolor = clr.gamma(orb.color, 1 / orb.exists)
                         gradient_factor = 1 - min(distance / orb.radius, 1.0)
-                        gradient_color = color.interpolate(orbcolor, (0, 0, 0), gradient_factor)
-                        self.matrix[i][j] = color.brighten(gradient_color, self.matrix[i][j])
+                        gradient_color = clr.interpolate(orbcolor, (0, 0, 0), gradient_factor)
+                        self.matrix[i][j] = clr.brighten(gradient_color, self.matrix[i][j])

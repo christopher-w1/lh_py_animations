@@ -1,3 +1,4 @@
+import math
 import tkinter as tk
 import multiprocessing, time, sys, signal
 from pyghthouse.ph import Pyghthouse
@@ -71,31 +72,42 @@ class AnimationController():
         remaining = self.anim_timer.remaining()
         if elapsed < 1:
             return elapsed
-        elif remaining < 1:
-            return remaining
+        elif remaining < 2:
+            return remaining/2
         else:
             return 1.0
         
+    def perf_wait(self):
+        while True:
+            if self.frame_timer.has_elapsed(): break
+        
+        
+    ##### ANIMATION METHOD #####
     def run_animation(self, anim: BounceAnimation, timeout=3000):
         # Initialize animation timer with timeout
         self.anim_timer.set(timeout)
         # Initialize frame timer with 100 ms
-        self.frame_timer.set(0.1)
+        self.frame_timer.set(0.2)
+        i = 0
+        timer_offset = 0
+        frametimes = []
         while self.keep_going and not self.anim_timer.has_elapsed():  
                 # Get image from animation
+                i+=1
                 frame = anim.get_frame()
-                time.sleep(self.frame_timer.remaining()*0.5)
-                # Send image at a fixed time after sleep to avoid stuttering
+                if i % 10 == 0:
+                    print("Execution time:", self.frame_timer.elapsed())
+                time.sleep(self.frame_timer.remaining())
                 if frame:
                     self.send_frame(frame, self.fade_opacity()) 
-                    self.frame_timer.set(self.update_interval)
                 else:
                     print("No image!")
                     break
-                if self.frame_timer.has_elapsed():
-                    print("Stutter detected: Frametimer ran out!")
-                print(self.frame_timer.remaining())
-                time.sleep(self.frame_timer.remaining())
+                if i % 10 == 0:
+                    timer_offset += sum(frametimes) / float(len(frametimes))
+                    frametimes = []
+                frametimes.append(self.frame_timer.elapsed() - self.update_interval)
+                self.frame_timer.set(self.update_interval - timer_offset)
                     
         
         
@@ -133,7 +145,7 @@ class AnimationController():
         
     
 if __name__ == "__main__":
-    AnimationController(300, True, True, None, None, 60, None)
+    AnimationController(30, False, True, None, None, 30, None)
     exit(0)
     if len(sys.argv) > 1:
         time_per_anim = int(sys.argv[1])
@@ -147,7 +159,7 @@ if __name__ == "__main__":
             if '--local' in argument:
                 gui = True
                 remote = True
-            elif  '--gui' in argument:
+            elif '--gui' in argument:
                 gui = True
             elif '--fps=' in argument and len(argument) > 6 and argument.split('=')[1].isnumeric():
                 fps = int(argument.split('=')[1])
