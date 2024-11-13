@@ -160,7 +160,7 @@ if __name__ == "__main__":
         for argument in sys.argv:
             if '--local' in argument:
                 gui = True
-                remote = True
+                remote = False
             elif  '--gui' in argument:
                 gui = True
             elif '--fps=' in argument and len(argument) > 6 and argument.split('=')[1].isnumeric():
