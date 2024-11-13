@@ -1,5 +1,5 @@
 import tkinter as tk
-import color_functions as color
+import color_functions as clr
 import math, random, time, multiprocessing
 from stopwatch import Stopwatch
 from pyghthouse import Pyghthouse
@@ -42,7 +42,7 @@ class RgbTest(multiprocessing.Process):
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
                 #self.matrix[x][y] = color.dither(self.matrix[x][y], 10)
-                new[x][y] = color.clip(color.wash(self.matrix[x][y]))
+                new[x][y] = clr.clip(clr.wash(self.matrix[x][y]))
         return self.collapse_matrix(new)
 
     def process_pixel(self, pixel):

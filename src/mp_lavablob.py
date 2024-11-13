@@ -1,5 +1,5 @@
 from stopwatch import Stopwatch
-import color_functions as color
+import color_functions as clr
 import math, random, multiprocessing, time
 from pyghthouse import Pyghthouse
 
@@ -34,7 +34,7 @@ class Lavablobs(multiprocessing.Process):
             self.radius = 3.0
             self.x = x
             self.y = y
-            self.color = color.multiply_val(color.rand_vibrant_color(1), 2) if COLORFUL else (512, 192, 64)
+            self.color = clr.multiply_val(clr.rand_vibrant_color(1), 2) if COLORFUL else (512, 192, 64)
             
             self.weight = 1.0
             
@@ -175,7 +175,7 @@ class Lavablobs(multiprocessing.Process):
         new = [row[:] for row in self.matrix]
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
-                new[x][y] = color.gamma(color.wash(self.matrix[x][y]), 1)
+                new[x][y] = clr.gamma(clr.wash(self.matrix[x][y]), 1)
         return self.collapse_matrix(new)
     
     def add_blob(self):
@@ -200,11 +200,11 @@ class Lavablobs(multiprocessing.Process):
                     distance = math.sqrt((i - orb.x) ** 2 + (j - orb.y) ** 2)
                     if distance <= orb.radius*d:
                         # Linearer Farbverlauf basierend auf Entfernung
-                        orbcolor = color.gamma(orb.color, 1)
+                        orbcolor = clr.gamma(orb.color, 1)
                         gradient_factor = 1 - min(distance / (orb.radius*d), 1.0)
-                        gradient_color = color.interpolate(orbcolor, (0,0,0), gradient_factor)
+                        gradient_color = clr.interpolate(orbcolor, (0,0,0), gradient_factor)
                         #self.matrix[i][j] = color.add(gradient_color, self.matrix[i][j])
-                        self.matrix[i][j] = color.brighten(gradient_color, self.matrix[i][j])
+                        self.matrix[i][j] = clr.brighten(gradient_color, self.matrix[i][j])
     
     def run(self):
         
@@ -215,7 +215,7 @@ class Lavablobs(multiprocessing.Process):
             
             for x in range(len(self.matrix)):
                 for y in range(len(self.matrix[0])):
-                    self.matrix[x][y] = color.decay(self.matrix[x][y], 0.02*self.animspeed)
+                    self.matrix[x][y] = clr.decay(self.matrix[x][y], 0.02*self.animspeed)
                     
             for orb in self.orbs:           
                 self.render_orb(orb)

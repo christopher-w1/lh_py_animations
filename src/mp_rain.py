@@ -1,5 +1,5 @@
 import tkinter as tk
-import color_functions as color
+import color_functions as clr
 import math, random, time, multiprocessing
 from stopwatch import Stopwatch
 from pyghthouse import Pyghthouse
@@ -16,7 +16,7 @@ class RainAnimation(multiprocessing.Process):
             self.y = y
             #self.color = color.rand_vibrant_color(3)
             #self.color = color.rand_metal_color(2)
-            self.color = color.rand_faculty_color(2)
+            self.color = clr.rand_faculty_color(2)
             self.colorshift = colorshift
             self.loss_factor = random.uniform(0.99, 0.999)
             self.alive = True
@@ -54,7 +54,7 @@ class RainAnimation(multiprocessing.Process):
             
 
         def shift_color(self):
-            self.color = color.shift(self.color, self.colorshift)
+            self.color = clr.shift(self.color, self.colorshift)
 
         
     def stop(self):
@@ -106,8 +106,8 @@ class RainAnimation(multiprocessing.Process):
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
                 #self.matrix[x][y] = color.dither(self.matrix[x][y], 10)
-                clr = color.from_float(self.matrix[x][y])
-                new[x][y] = color.wash(clr)
+                clr = clr.from_float(self.matrix[x][y])
+                new[x][y] = clr.wash(clr)
         return self.collapse_matrix(new)
 
     
@@ -132,9 +132,9 @@ class RainAnimation(multiprocessing.Process):
                         # Linearer Farbverlauf basierend auf der Entfernung
                         orbcolor = orb.color
                         gradient_factor = 1 - min(distance / orb.radius, 1.0)
-                        gradient_color = color.interpolate(orbcolor, (0,0,0), gradient_factor)
-                        gradient_color = color.from_float(gradient_color)
-                        self.matrix[i][j] = color.brighten(gradient_color, self.matrix[i][j])
+                        gradient_color = clr.interpolate(orbcolor, (0,0,0), gradient_factor)
+                        gradient_color = clr.from_float(gradient_color)
+                        self.matrix[i][j] = clr.brighten(gradient_color, self.matrix[i][j])
     
     def run(self):
         
@@ -147,7 +147,7 @@ class RainAnimation(multiprocessing.Process):
 
             for x in range(len(self.matrix)):
                 for y in range(len(self.matrix[0])):
-                    self.matrix[x][y] = color.shift(color.decay(self.matrix[x][y], 1/16), 0)
+                    self.matrix[x][y] = clr.shift(clr.decay(self.matrix[x][y], 1/16), 0)
                     
             for orb in self.orbs:
                 self.render_orb(orb)

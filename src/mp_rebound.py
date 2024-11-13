@@ -1,5 +1,5 @@
 import tkinter as tk
-import color_functions as color
+import color_functions as clr
 import math, random, time, multiprocessing
 from stopwatch import Stopwatch
 from pyghthouse import Pyghthouse
@@ -16,7 +16,7 @@ class ReboundAnimation(multiprocessing.Process):
             self.x = x
             self.y = y
             #self.color = color.rand_vibrant_color(3)
-            self.color = color.shift(color.rand_rgb_color(3), random.randint(0, 360))
+            self.color = clr.shift(clr.rand_rgb_color(3), random.randint(0, 360))
             if hue:
                 self.color = multiply_val(hsv_to_rgb(hue, 100, 100), 2)
             self.colorshift = colorshift
@@ -68,7 +68,7 @@ class ReboundAnimation(multiprocessing.Process):
             
 
         def shift_color(self):
-            self.color = color.shift(self.color, self.colorshift)
+            self.color = clr.shift(self.color, self.colorshift)
 
         def apply_gravity(self):
             g = 0.03
@@ -85,7 +85,7 @@ class ReboundAnimation(multiprocessing.Process):
                 self.hp -= 1
             else:
                 self.loss_factor = 0.97
-                self.color = color.decay(self.color, 0.03)
+                self.color = clr.decay(self.color, 0.03)
                 r, g, b, = self.color
                 if r+g+b < 1:
                     self.is_dead = True
@@ -149,7 +149,7 @@ class ReboundAnimation(multiprocessing.Process):
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
                 #self.matrix[x][y] = color.dither(self.matrix[x][y], 10)
-                new[x][y] = color.wash(self.matrix[x][y])
+                new[x][y] = clr.wash(self.matrix[x][y])
         return self.collapse_matrix(new)
 
     
@@ -192,11 +192,11 @@ class ReboundAnimation(multiprocessing.Process):
                     if distance <= orb.radius:
                         ###self.matrix[i][j] = color.brighten(orb.color, self.matrix[i][j])
                         # Linearer Farbverlauf basierend auf der Entfernung
-                        orbcolor = color.gamma(orb.color, 1/orb.exists)
+                        orbcolor = clr.gamma(orb.color, 1/orb.exists)
                         gradient_factor = 1 - min(distance / orb.radius, 1.0)
-                        gradient_color = color.interpolate(orbcolor, (0,0,0), gradient_factor)
+                        gradient_color = clr.interpolate(orbcolor, (0,0,0), gradient_factor)
 
-                        self.matrix[i][j] = color.brighten(gradient_color, self.matrix[i][j])
+                        self.matrix[i][j] = clr.brighten(gradient_color, self.matrix[i][j])
                         #self.matrix[i][j] = color.interpolate(gradient_color, self.matrix[i][j], 0.5)
 
     
@@ -218,7 +218,7 @@ class ReboundAnimation(multiprocessing.Process):
             for x in range(len(self.matrix)):
                 for y in range(len(self.matrix[0])):
                     self.matrix[x][y] = interpolate(self.matrix[x][y], blur_matrix[x][y], 0.9)
-                    self.matrix[x][y] = color.shift(color.decay(self.matrix[x][y], 0.001), 5)
+                    self.matrix[x][y] = clr.shift(clr.decay(self.matrix[x][y], 0.001), 5)
                     
             for orb in self.orbs:
                 self.render_orb(orb)

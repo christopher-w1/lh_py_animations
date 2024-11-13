@@ -1,5 +1,5 @@
 from stopwatch import Stopwatch
-import color_functions as color
+import color_functions as clr
 import math, random, multiprocessing, time
 from pyghthouse import Pyghthouse
 
@@ -19,7 +19,7 @@ class Fireworks(multiprocessing.Process):
             self.x = x
             self.y = y
             #self.color = color.rand_vibrant_color2(random.uniform(2.5, 3.5))
-            self.color = color.rand_metal_color(random.uniform(2.5, 3.5))
+            self.color = clr.rand_metal_color(random.uniform(2.5, 3.5))
             self.colorshift = colorshift
             self.loss_factor = random.uniform(0.99, 0.999)
             self.is_dead = False
@@ -59,7 +59,7 @@ class Fireworks(multiprocessing.Process):
             
 
         def shift_color(self):
-            self.color = color.shift(self.color, self.colorshift)
+            self.color = clr.shift(self.color, self.colorshift)
 
         def apply_gravity(self):
             g = 0.03*self.animspeed
@@ -79,7 +79,7 @@ class Fireworks(multiprocessing.Process):
                 self.hp -= 1
             else:
                 self.loss_factor = 0.97
-                self.color = (255, 128, 0) if self.level == 2 else color.decay(self.color, 0.3)
+                self.color = (255, 128, 0) if self.level == 2 else clr.decay(self.color, 0.3)
                 r, g, b, = self.color
                 if r+g+b < 1:
                     self.is_dead = True
@@ -135,7 +135,7 @@ class Fireworks(multiprocessing.Process):
         new = [row[:] for row in self.matrix]
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
-                new[x][y] = color.gamma(color.wash(color.multiply_val(self.matrix[x][y], BRIGHTNESS), PRESERVE_COLOR), GAMMA)
+                new[x][y] = clr.gamma(clr.wash(clr.multiply_val(self.matrix[x][y], BRIGHTNESS), PRESERVE_COLOR), GAMMA)
                 #new[x][y] = color.gamma(color.wash(color.tint_rgb(self.matrix[x][y], (255, 64, 128))), 1.5)
         return self.collapse_matrix(new)
     
@@ -205,19 +205,19 @@ class Fireworks(multiprocessing.Process):
                     distance = math.sqrt(((i - orb.x) ** 2)*X_Scale + (j - orb.y) ** 2)
                     if distance <= orb.radius:
                         # Linearer Farbverlauf basierend auf Entfernung
-                        orbcolor = color.gamma(orb.color, 1/orb.blend_in)
+                        orbcolor = clr.gamma(orb.color, 1/orb.blend_in)
                         if orb.level == 2:
-                            orbcolor = color.flicker_color(orbcolor, 5)
+                            orbcolor = clr.flicker_color(orbcolor, 5)
                         elif orb.level == 1:
-                            orbcolor = color.cycle(orbcolor, random.randint(0, 20), 8)
+                            orbcolor = clr.cycle(orbcolor, random.randint(0, 20), 8)
                         elif orb.level == 3:
-                            orbcolor = color.dither(color.gamma(orbcolor, random.uniform(1, 20)), 120)
+                            orbcolor = clr.dither(clr.gamma(orbcolor, random.uniform(1, 20)), 120)
                             if random.randint(0, 5) == 0:
-                                orbcolor = color.gamma(orbcolor, 10)
+                                orbcolor = clr.gamma(orbcolor, 10)
                         gradient_factor = 1 - min(distance / orb.radius, 1.0)
-                        gradient_color = color.interpolate(orbcolor, (0,0,0), gradient_factor)
+                        gradient_color = clr.interpolate(orbcolor, (0,0,0), gradient_factor)
                         #self.matrix[i][j] = color.add(gradient_color, self.matrix[i][j])
-                        self.matrix[i][j] = color.brighten(gradient_color, self.matrix[i][j])
+                        self.matrix[i][j] = clr.brighten(gradient_color, self.matrix[i][j])
     
     def run(self):
         keep_running = True
@@ -228,7 +228,7 @@ class Fireworks(multiprocessing.Process):
             
             for x in range(len(self.matrix)):
                 for y in range(len(self.matrix[0])):
-                    self.matrix[x][y] = color.decay(self.matrix[x][y], 0.16*self.animspeed)
+                    self.matrix[x][y] = clr.decay(self.matrix[x][y], 0.16*self.animspeed)
                     
             for orb in self.orbs:           
                 self.render_orb(orb)
@@ -246,18 +246,18 @@ class Fireworks(multiprocessing.Process):
                             self.add_tracers(x, y, (320,192,0), speed= 0.33, weight = 0.33)
                         else:
                             for _ in range(random.randint(1, 2)):
-                                self.add_tracers(x, y, color.gamma(col, 2))
+                                self.add_tracers(x, y, clr.gamma(col, 2))
                         if random.randint(0,1) == 1:
-                            self.add_expl(x, y, mx, my, color.multiply_val(col, random.randint(3, 8)))
-                            self.add_twinkle(x, y, mx, my, color.multiply_val(col, 4))
+                            self.add_expl(x, y, mx, my, clr.multiply_val(col, random.randint(3, 8)))
+                            self.add_twinkle(x, y, mx, my, clr.multiply_val(col, 4))
                         else:
-                            self.add_expl(x, y, mx, my, color.gamma(col, 3))
+                            self.add_expl(x, y, mx, my, clr.gamma(col, 3))
 
                     elif orb.level == 0:
                         orb.radius += 1
                     elif orb.level == 3 and len(self.orbs) < 20 and random.randint(1, 100) == 1:
-                        self.add_expl(x, y, mx, my, color.multiply_val(col, 10))
-                        self.add_tracers(x, y, color.gamma(col, 1))
+                        self.add_expl(x, y, mx, my, clr.multiply_val(col, 10))
+                        self.add_tracers(x, y, clr.gamma(col, 1))
             
             
             self.queue.put(self.get_matrix())
