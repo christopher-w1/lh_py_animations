@@ -14,6 +14,7 @@ from mp_rebound import ReboundAnimation
 from mp_diffraction import DiffAnimation
 from mp_conway import GameOfLife
 from mp_scrolltext import ScrollText
+from src.mp_dots import Dots
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -82,6 +83,7 @@ class AnimationController():
             self.ph.start()
             
         animations = [
+                    Dots(),
                     GameOfLife(),
                     Fireworks(), 
                     Lavablobs(),
