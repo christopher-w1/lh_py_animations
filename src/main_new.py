@@ -7,6 +7,8 @@ from stopwatch import Stopwatch
 from color_functions import interpolate, cycle
 from os import getenv
 from animations.a_bounce import BounceAnimation
+from animations.a_firework import FireworkAnimation
+from animations.a_conway import GameOfLife
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -14,6 +16,7 @@ class AnimationController():
         self.fps = fps if fps > 0 else 60
         self.update_interval = 1/(self.fps)
         self.name = "JhController"
+        self.perfmode = False
         signal.signal(signal.SIGINT, self._handle_sigint)
         self.remote_enabled = remote
         self.ph = None
@@ -66,6 +69,10 @@ class AnimationController():
     def _handle_sigint(self, signum, frame):
         print("Ctrl+C detected. Stopping animations...")
         self.keep_going = False
+        if self.displayprocess:
+            self.displayprocess.stop()
+            self.displayprocess.join(timeout = 2)
+            self.displayprocess.kill()
         
     def fade_opacity(self):
         elapsed = self.anim_timer.elapsed()
@@ -78,8 +85,11 @@ class AnimationController():
             return 1.0
         
     def perf_wait(self):
-        while True:
-            if self.frame_timer.has_elapsed(): break
+        if self.perfmode:
+            while True:
+                if self.frame_timer.remaining_ms < 14: break
+        else:
+            time.sleep(self.frame_timer.remaining())
         
         
     ##### ANIMATION METHOD #####
@@ -89,25 +99,17 @@ class AnimationController():
         # Initialize frame timer with 100 ms
         self.frame_timer.set(0.2)
         i = 0
-        timer_offset = 0
-        frametimes = []
         while self.keep_going and not self.anim_timer.has_elapsed():  
                 # Get image from animation
                 i+=1
                 frame = anim.get_frame()
-                if i % 10 == 0:
-                    print("Execution time:", self.frame_timer.elapsed())
-                time.sleep(self.frame_timer.remaining())
+                self.perf_wait()
                 if frame:
                     self.send_frame(frame, self.fade_opacity()) 
                 else:
                     print("No image!")
                     break
-                if i % 10 == 0:
-                    timer_offset += sum(frametimes) / float(len(frametimes))
-                    frametimes = []
-                frametimes.append(self.frame_timer.elapsed() - self.update_interval)
-                self.frame_timer.set(self.update_interval - timer_offset)
+                self.frame_timer.set(self.update_interval)
                     
         
         
@@ -122,7 +124,9 @@ class AnimationController():
             self.ph.start()
             
         animations = [
-                    BounceAnimation()
+            GameOfLife(),
+            FireworkAnimation(),
+            BounceAnimation()
                     ]
     
         n = 0
@@ -137,15 +141,11 @@ class AnimationController():
             self.run_animation(anim)
             n = (n+1) % len(animations)
             
-        if self.displayprocess:
-            self.displayprocess.stop()
-            self.displayprocess.join(timeout = 2)
-            self.displayprocess.kill()
         exit(0)
         
     
 if __name__ == "__main__":
-    AnimationController(30, False, True, None, None, 30, None)
+    AnimationController(30, True, True, None, None, 30, None)
     exit(0)
     if len(sys.argv) > 1:
         time_per_anim = int(sys.argv[1])
