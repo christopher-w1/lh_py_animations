@@ -106,8 +106,8 @@ class RainAnimation(multiprocessing.Process):
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
                 #self.matrix[x][y] = color.dither(self.matrix[x][y], 10)
-                clr = clr.from_float(self.matrix[x][y])
-                new[x][y] = clr.wash(clr)
+                color = clr.from_float(self.matrix[x][y])
+                new[x][y] = clr.wash(color)
         return self.collapse_matrix(new)
 
     

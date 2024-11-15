@@ -14,12 +14,13 @@ from mp_rebound import ReboundAnimation
 from mp_diffraction import DiffAnimation
 from mp_conway import GameOfLife
 from mp_scrolltext import ScrollText
-from src.mp_dots import Dots
+from mp_dots import Dots
 
 class AnimationController():   
-    def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
+    def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None, perf=True) -> None:
         self.keep_going = True
         self.displayqueue = None
+        self.perf = perf
         self.name = "JhController"
         signal.signal(signal.SIGINT, self._handle_sigint)
         self.gui_enabled = gui
@@ -72,6 +73,13 @@ class AnimationController():
         print("Ctrl+C detected. Stopping animations...")
         self.keep_going = False
         
+    def perf_wait(self, timer: Stopwatch):
+        if self.perf:
+            while True:
+                if timer.has_elapsed(): break
+        else:
+            time.sleep(timer.remaining())
+        
     ##### RUN METHOD #####
     def run(self, time_per_anim):
         
@@ -83,16 +91,16 @@ class AnimationController():
             self.ph.start()
             
         animations = [
+                    ScrollText(),
+                    RainAnimation(), 
                     Dots(),
                     GameOfLife(),
                     Fireworks(), 
                     Lavablobs(),
                     #RgbTest(), 
-                    RainAnimation(), 
                     ReboundAnimation(), 
                     DiffAnimation(), 
-                    Bouncers(),
-                    ScrollText()]
+                    Bouncers(),]
         
         anim_timer = Stopwatch()
         frametimer = Stopwatch() 
@@ -131,7 +139,7 @@ class AnimationController():
                     image = framequeue.get_nowait()
                 self.send_frame(image, i/256)
                 commandqueue.put("keep_running")
-                time.sleep(frametimer.remaining())
+                self.perf_wait(frametimer)
                     
             #Fireworks().terminate()
             anim.stop()
@@ -159,6 +167,7 @@ if __name__ == "__main__":
         username = None
         token = None
         animation = None
+        perf_mode = False
         for argument in sys.argv:
             if '--local' in argument:
                 gui = True
@@ -172,10 +181,13 @@ if __name__ == "__main__":
                 token = getenv('LIGHTHOUSE_TOKEN')
             elif '--animation=' in argument and len(argument) > 12 and argument.split('=')[1].isnumeric():
                 animation = int(argument.split('=')[1])
-        AnimationController(time_per_anim, gui, remote, username, token, fps, animation)
+            elif '--perf' in argument:
+                perf_mode = True
+        AnimationController(time_per_anim, gui, remote, username, token, fps, animation, perf_mode)
     else:
         print(f"Usage:\n{sys.argv[0]} [TIME] [OPTIONS]")
         print("Whereas [TIME] = time in seconds and possible options are:")
         print("--local\tRuns with local GUI only\n--gui\tRuns with both local GUI and remove connection")
         print("--env\tRead 'username' and 'token' from environment variable (instead of file) as")
         print("\tLIGHTHOUSE_USER | LIGHTHOUSE_TOKEN\n--fps=x\tRuns with x fps (default=60)")
+        print("--perf\tUse active polling loop instead of 'wait' in frametimer for better performance on low end devices.")

@@ -1,5 +1,5 @@
-import color_functions as clr
 import time, multiprocessing
+import color_functions as clr
 from stopwatch import Stopwatch
 from PIL import Image, ImageDraw
 
