@@ -17,9 +17,10 @@ from mp_scrolltext import ScrollText
 from mp_dots import Dots
 
 class AnimationController():   
-    def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None, perf=True) -> None:
+    def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animations=[], perf=True) -> None:
         self.keep_going = True
         self.displayqueue = None
+        self.animations = animations
         self.perf = perf
         self.name = "JhController"
         signal.signal(signal.SIGINT, self._handle_sigint)
@@ -90,18 +91,8 @@ class AnimationController():
             self.ph = Pyghthouse(self.username, self.token)
             self.ph.start()
             
-        animations = [
-                    ScrollText(),
-                    RainAnimation(), 
-                    Dots(),
-                    GameOfLife(),
-                    Fireworks(), 
-                    Lavablobs(),
-                    #RgbTest(), 
-                    ReboundAnimation(), 
-                    DiffAnimation(), 
-                    Bouncers(),]
         
+        animations = self.animations
         anim_timer = Stopwatch()
         frametimer = Stopwatch() 
         update_interval = 1/(self.fps)
@@ -115,13 +106,13 @@ class AnimationController():
             commandqueue = multiprocessing.Queue()
             anim_timer.set(time_per_anim)
             anim = animations[n].get_instance(28, 27, framequeue, commandqueue, fps=fps)
-            print(f"Starting animation '{anim.name}' for {time_per_anim} seconds.")
+            print(f"Starting animation '{anim.name}'" + "." if len(animations)==1 else f" for {time_per_anim} seconds.")
             #anim.params(28, 27, framequeue, commandqueue, fps=fps)
             anim.start()
             
             image = Pyghthouse.empty_image()
             opacity = 0
-            while not anim_timer.has_elapsed() and self.keep_going:   
+            while (len(animations)==1 or not anim_timer.has_elapsed()) and self.keep_going:   
                 frametimer.set(update_interval)
                 while not framequeue.empty(): 
                     image = framequeue.get_nowait()
@@ -159,6 +150,17 @@ class AnimationController():
         
     
 if __name__ == "__main__":
+    animations = [
+                    ScrollText(),
+                    RainAnimation(), 
+                    Dots(),
+                    GameOfLife(),
+                    Fireworks(), 
+                    Lavablobs(),
+                    #RgbTest(), 
+                    ReboundAnimation(), 
+                    DiffAnimation(), 
+                    Bouncers(),]
     if len(sys.argv) > 1:
         time_per_anim = int(sys.argv[1])
         gui = False
@@ -166,7 +168,7 @@ if __name__ == "__main__":
         fps = 60
         username = None
         token = None
-        animation = None
+        animations_enabled = animations
         perf_mode = False
         for argument in sys.argv:
             if '--local' in argument:
@@ -183,7 +185,11 @@ if __name__ == "__main__":
                 animation = int(argument.split('=')[1])
             elif '--perf' in argument:
                 perf_mode = True
-        AnimationController(time_per_anim, gui, remote, username, token, fps, animation, perf_mode)
+            elif '--anim=' in argument:
+                for entry in animations:
+                    if argument.split('=')[1] in entry.name:
+                        animations_enabled = [entry]
+        AnimationController(time_per_anim, gui, remote, username, token, fps, animations_enabled, perf_mode)
     else:
         print(f"Usage:\n{sys.argv[0]} [TIME] [OPTIONS]")
         print("Whereas [TIME] = time in seconds and possible options are:")
@@ -191,3 +197,4 @@ if __name__ == "__main__":
         print("--env\tRead 'username' and 'token' from environment variable (instead of file) as")
         print("\tLIGHTHOUSE_USER | LIGHTHOUSE_TOKEN\n--fps=x\tRuns with x fps (default=60)")
         print("--perf\tUse active polling loop instead of 'wait' in frametimer for better performance on low end devices.")
+        print(f"--anim=\tOnly show a certain animation. Available animations:\n\t{' '.join([anim.name for anim in animations])}")
