@@ -28,7 +28,7 @@ class AnimationController():
         self.remote_enabled = remote
         self.ph = None
         self.displayprocess = None
-        self.user = user
+        self.username = user
         self.token = token
         self.fps = fps
         self.run(time_per_anim)
@@ -85,7 +85,8 @@ class AnimationController():
     def run(self, time_per_anim):
         
         if self.remote_enabled:
-            self.read_auth()
+            if not self.username or not self.token:
+                self.read_auth()
             if not self.username or not self.token:
                 exit(1)
             self.ph = Pyghthouse(self.username, self.token)
