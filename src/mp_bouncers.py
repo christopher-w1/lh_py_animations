@@ -15,8 +15,9 @@ class BounceAnimation(multiprocessing.Process):
             self.x = x
             self.y = y
             #self.color = color.rand_vibrant_color(3)
-            self.color = clr.shift(clr.rand_rgb_color(3), random.randint(0, 360))
-            self.colorshift = colorshift
+            #self.color = clr.shift(clr.rand_rgb_color(3), random.randint(0, 360))
+            self.color = clr.rand_blue_color(3)
+            self.colorshift = 0 #colorshift
             self.loss_factor = random.uniform(0.99, 0.999)
             self.is_dead = False
             self.exists = 10

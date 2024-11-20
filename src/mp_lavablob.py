@@ -34,7 +34,8 @@ class Lavablobs(multiprocessing.Process):
             self.radius = 3.0
             self.x = x
             self.y = y
-            self.color = clr.multiply_val(clr.rand_vibrant_color(1), 2) if COLORFUL else (512, 192, 64)
+            #self.color = clr.multiply_val(clr.rand_vibrant_color(1), 2) if COLORFUL else (512, 192, 64)
+            self.color = clr.rand_blue_color(2)
             
             self.weight = 1.0
             

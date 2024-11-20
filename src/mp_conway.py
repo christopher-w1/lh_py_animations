@@ -27,7 +27,7 @@ class GameOfLife(multiprocessing.Process):
         self.fade_steps = int(fps * self.update_interval)*1  # Anzahl der Frames für die Überblendung
         self.transition_grid = np.copy(self.grid)  # Zielgrid für die Übergangsberechnung
         self.counter = 0
-        self.color = (255, 0, 0)
+        self.color = (0, 95, 255)
         
     def reset_grid(self):
         self.grid = np.random.choice([0, 1], size=(self.xsize, self.ysize))
@@ -86,7 +86,7 @@ class GameOfLife(multiprocessing.Process):
         
         while not self._stop_event.is_set():
             
-            self.color = cycle(self.color, 2)
+            #self.color = cycle(self.color, 2)
 
             # Prüfen, ob es Zeit für das nächste Grid-Update ist
             if step >= self.fade_steps:

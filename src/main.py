@@ -152,15 +152,15 @@ class AnimationController():
     
 if __name__ == "__main__":
     animations = [
-                    ScrollText(),
-                    RainAnimation(), 
-                    Dots(),
+                    #ScrollText(),
                     GameOfLife(),
+                    RainAnimation(), 
+                    #Dots(),
                     Fireworks(), 
                     Lavablobs(),
                     #RgbTest(), 
-                    ReboundAnimation(), 
-                    DiffAnimation(), 
+                    #ReboundAnimation(), 
+                    #DiffAnimation(), 
                     Bouncers(),]
     if len(sys.argv) > 1:
         time_per_anim = int(sys.argv[1])

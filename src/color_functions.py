@@ -22,6 +22,15 @@ def from_float(pixel: tuple[float, float, float]):
     
     return (r_int, g_int, b_int)
 
+def rand_blue_color(intensity: float):
+    r = 0 
+    g = 0
+    b = random.randint(int(200 * intensity), int(255 * intensity))  
+    
+    variance = random.randint(-35, 5)
+    
+    return shift((r, g, b), variance)
+
 def rand_metal_color(intensity: float):
     
     metals = {
