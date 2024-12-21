@@ -5,16 +5,16 @@ from local_display import DisplayProcess
 from stopwatch import Stopwatch
 from color_functions import interpolate, cycle
 from os import getenv
-from mp_firework import Fireworks
-from mp_bouncers import BounceAnimation as Bouncers
+from src.old.mp_firework import Fireworks
+from src.old.mp_bouncers import BounceAnimation as Bouncers
 from mp_lavablob import Lavablobs
 from mp_rgbtest import RgbTest
-from mp_rain import RainAnimation
+from src.old.mp_rain import RainAnimation
 from mp_rebound import ReboundAnimation
 from mp_diffraction import DiffAnimation
 from mp_conway import GameOfLife
 from mp_scrolltext import ScrollText
-from mp_dots import Dots
+from src.old.mp_dots import Dots
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animations=[], perf=True) -> None:

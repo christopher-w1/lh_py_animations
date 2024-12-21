@@ -7,9 +7,12 @@ from stopwatch import Stopwatch
 from color_functions import interpolate, cycle
 from os import getenv
 from animations.a_bounce import BounceAnimation
-from animations.a_firework import FireworkAnimation
-from animations.a_conway import GameOfLife
-from animations.a_diffraction import DiffAnimation
+from animations.a_fireworks import FireworksAnimation
+from animations.a_conway import ConwaysGameOfLife
+from animations.a_diffraction import LightDiffractionAnimation
+from animations.a_dots import Dots
+from animations.a_rain import RainAnimation
+from animations.a_colorclash import ColorClashAnimation
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -130,9 +133,12 @@ class AnimationController():
             
         try:
             animations = [
-                DiffAnimation(),
-                GameOfLife(),
-                FireworkAnimation(),
+                ColorClashAnimation(),
+                RainAnimation(),
+                Dots(),
+                LightDiffractionAnimation(),
+                ConwaysGameOfLife(),
+                FireworksAnimation(),
                 BounceAnimation()
                         ]
         except:
@@ -150,14 +156,15 @@ class AnimationController():
                 exit(1)
             
         while self.keep_going:
-            print(f"Starting animation '{anim.name}' for {time_per_anim} seconds.")
             try:
                 anim = animations[n].get_instance(28, 27, fps=self.fps)
+                print(f"Starting animation '{anim.name}' for {time_per_anim} seconds.")
                 self.run_animation(anim)
                 n = (n+1) % len(animations)
                 print(f"Animation '{anim.name}' finished.")
-            except:
+            except Exception as e:
                 print(f"Error: Could not start animation '{anim.name}'.")
+                print(e)
                 break
             
         if self.displayprocess:
@@ -174,7 +181,7 @@ class AnimationController():
         
     
 if __name__ == "__main__":
-    AnimationController(30, True, True, None, None, 30, None)
+    AnimationController(30, True, False, None, None, 30, None)
     exit(0)
     if len(sys.argv) > 1:
         time_per_anim = int(sys.argv[1])

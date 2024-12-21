@@ -1,18 +1,18 @@
 import numpy as np
 from color_functions import cycle
 
-class GameOfLife():
+class ConwaysGameOfLife():
     
     @staticmethod
     def get_instance(xsize, ysize, fps=10):
-        new_instance = GameOfLife()
+        new_instance = ConwaysGameOfLife()
         new_instance.params(xsize, ysize, fps)
         new_instance.grid = np.random.choice([0, 1], size=(xsize, ysize))
         new_instance.transition_grid = np.copy(new_instance.grid)  # Zielgrid für die Übergangsberechnung
         return new_instance
 
     def params(self, xsize, ysize, fps):
-        self.name = "Conway's Game Of Life Animation"
+        self.name = "Conway's Game Of Life"
         self.grid = []
         self.transition_grid = []
         self.xsize = xsize
