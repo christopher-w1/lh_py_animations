@@ -13,6 +13,7 @@ from animations.a_diffraction import LightDiffractionAnimation
 from animations.a_dots import Dots
 from animations.a_rain import RainAnimation
 from animations.a_colorclash import ColorClashAnimation
+from animations.a_scrolltext import ScrollText
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -133,9 +134,10 @@ class AnimationController():
             
         try:
             animations = [
+                Dots(),
+                ScrollText(),
                 ColorClashAnimation(),
                 RainAnimation(),
-                Dots(),
                 LightDiffractionAnimation(),
                 ConwaysGameOfLife(),
                 FireworksAnimation(),

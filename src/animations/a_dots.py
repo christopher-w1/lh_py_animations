@@ -34,6 +34,7 @@ class Dots():
         self.d7 = self.Dot(0,  12, [0,  103,124], (0.7, 1))
         self.d8 = self.Dot(5,  0,  [0,  61, 134], (0.8, 1))
         self.dots = [self.d1,self.d2,self.d3,self.d4,self.d5,self.d6,self.d7,self.d8]
+        self.framebuffer = []
         
 
     def collapse_matrix(self, matrix):
@@ -143,10 +144,7 @@ class Dots():
 
 
     
-    def get_frame(self):
-        update_interval = 1/self.fps*4
-        self.frametimer.set(update_interval)
-
+    def generate_next_frame(self):
         self.shadow(self.matrix)
     
         # Place all dots and move them
@@ -155,9 +153,29 @@ class Dots():
             dot.move()
 
         self.counter = (self.counter + 4) % 2048
-        
-        wait = self.frametimer.remaining()
-        time.sleep(wait)
         return self.get_matrix()
     
+    def get_frame(self):
+        if len(self.framebuffer) > 1:
+            return self.framebuffer.pop(0)
+        
+        if len(self.framebuffer) == 0:
+            self.framebuffer.append(self.generate_next_frame())
+
+        frame_A = self.framebuffer[0]
+        frame_B = self.generate_next_frame()
+
+        n_interframes = 3
+        for i in range(n_interframes):
+            factor = (i+1)/(n_interframes+1) if n_interframes > 1 else 0.5
+            interframe = []
+            for x in range(len(frame_A)):
+                row = []
+                for y in range(len(frame_A[0])):
+                    pixel_A = frame_A[x][y]
+                    pixel_B = frame_B[x][y]
+                    row.append(clr.interpolate(pixel_B, pixel_A, factor))
+                interframe.append(row)
+            self.framebuffer.append(interframe)
+        return self.framebuffer.pop(0)
 
