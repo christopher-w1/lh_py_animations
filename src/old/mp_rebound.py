@@ -251,7 +251,7 @@ class ReboundAnimation(multiprocessing.Process):
             time.sleep(wait)
         exit(0)
 
-import main
+import src.old.main as main
 if __name__ == "__main__":
     main.main()
     

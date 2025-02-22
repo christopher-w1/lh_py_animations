@@ -14,12 +14,9 @@ from mp_rebound import ReboundAnimation
 from mp_diffraction import DiffAnimation
 from mp_conway import GameOfLife
 from mp_scrolltext import ScrollText
-<<<<<<< HEAD:src/old/main.py
-from src.old.mp_dots import Dots
-=======
 from mp_dots import Dots
 from mp_child_prot_symbol import ChildProtSymbol
->>>>>>> fb18b8511d1d947e1212d5e1ab86782a2d3fe0ff:src/main.py
+
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animations=[], perf=True) -> None:
