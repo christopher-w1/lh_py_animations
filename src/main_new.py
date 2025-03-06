@@ -14,6 +14,10 @@ from animations.a_dots import Dots
 from animations.a_rain import RainAnimation
 from animations.a_colorclash import ColorClashAnimation
 from animations.a_scrolltext import ScrollText
+from animations.frauentag.heart_ft_color import Heart_ft
+from animations.frauentag.venus_shiny import Venus_shiny
+from animations.frauentag.venus_variety import Venus_variety
+from animations.frauentag.venus_world import Venus_world
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -134,14 +138,19 @@ class AnimationController():
             
         try:
             animations = [
-                Dots(),
-                ScrollText(),
-                ColorClashAnimation(),
-                RainAnimation(),
-                LightDiffractionAnimation(),
-                ConwaysGameOfLife(),
-                FireworksAnimation(),
-                BounceAnimation()
+                Venus_variety(),
+                Venus_shiny(),
+                Heart_ft(),
+                Venus_world(),
+                
+                #Dots(),
+                #ScrollText(),
+                #ColorClashAnimation(),
+                #RainAnimation(),
+                #LightDiffractionAnimation(),
+                #ConwaysGameOfLife(),
+                #FireworksAnimation(),
+                #BounceAnimation()
                         ]
         except:
             print("Error: Could not import animations.")
