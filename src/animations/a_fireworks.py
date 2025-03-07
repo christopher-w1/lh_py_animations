@@ -7,7 +7,7 @@ BRIGHTNESS = 0.5
 GAMMA = 1.5
 PRESERVE_COLOR = 0.5
 
-class FireworkAnimation:
+class FireworksAnimation:
     class Orb():
         def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0, motor = False, fps = 30, spd=1.0) -> None:
             self.lim_x = limx
@@ -86,7 +86,7 @@ class FireworkAnimation:
                     self.is_dead = True
                    
     def get_instance(self, xsize, ysize, fps=30, animspeed=1.0):
-        instance = FireworkAnimation()
+        instance = FireworksAnimation()
         instance.matrix = [[(0, 0, 0) for _ in range(ysize)] for _ in range(xsize)]
         instance.animspeed = animspeed
         instance.lim_x = xsize - 1
@@ -98,7 +98,7 @@ class FireworkAnimation:
         return instance
     
     def __init__(self):
-        self.name = "Fireworks Animation"
+        self.name = "Fireworks"
         self.matrix = []
         self.lim_x = None
         self.lim_y = None

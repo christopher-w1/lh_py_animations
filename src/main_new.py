@@ -7,8 +7,18 @@ from stopwatch import Stopwatch
 from color_functions import interpolate, cycle
 from os import getenv
 from animations.a_bounce import BounceAnimation
-from animations.a_firework import FireworkAnimation
-from animations.a_conway import GameOfLife
+from animations.a_fireworks import FireworksAnimation
+from animations.a_conway import ConwaysGameOfLife
+from animations.a_diffraction import LightDiffractionAnimation
+from animations.a_dots import Dots
+from animations.a_rain import RainAnimation
+from animations.a_colorclash import ColorClashAnimation
+from animations.a_scrolltext import ScrollText
+from animations.frauentag.heart_ft_color import Heart_ft
+from animations.frauentag.venus_shiny import Venus_shiny
+from animations.frauentag.venus_variety import Venus_variety
+from animations.frauentag.venus_world import Venus_world
+from animations.frauentag.scrolltext_ft import Text_ft
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -117,35 +127,78 @@ class AnimationController():
     def run(self, time_per_anim):
         
         if self.remote_enabled:
-            self.read_auth()
-            if not self.username or not self.token:
+            try:
+                self.read_auth()
+                if not self.username or not self.token:
+                    exit(1)
+                self.ph = Pyghthouse(self.username, self.token)
+                self.ph.start()
+            except:
+                print("Error: Could not connect to the Lighthouse server.")
                 exit(1)
-            self.ph = Pyghthouse(self.username, self.token)
-            self.ph.start()
             
-        animations = [
-            GameOfLife(),
-            FireworkAnimation(),
-            BounceAnimation()
-                    ]
+        try:
+            animations = [
+                Venus_world(),
+                Heart_ft(), # test with smooth edge
+                Venus_variety(), # maybe change some colors?
+                FireworksAnimation(),
+                Heart_ft(),
+                Text_ft(), # maybe alternative is better?
+                # put more animation inbetween?
+                Venus_shiny(),
+                
+
+                #Dots(),
+                #ScrollText(),
+                #ColorClashAnimation(),
+                #RainAnimation(),
+                #LightDiffractionAnimation(),
+                #ConwaysGameOfLife(),
+                #FireworksAnimation(),
+                #BounceAnimation()
+                        ]
+        except:
+            print("Error: Could not import animations.")
     
         n = 0
         if self.gui_enabled:
-            self.displayqueue = multiprocessing.Queue()
-            self.displayprocess = DisplayProcess(self.displayqueue,self.fps)
-            self.displayprocess.start()
+            try:
+                self.displayqueue = multiprocessing.Queue()
+                self.displayprocess = DisplayProcess(self.displayqueue,self.fps)
+                self.displayprocess.start()
+            except:
+                print("Error: Could not start display process.")
+                self.displayprocess.stop()
+                exit(1)
             
         while self.keep_going:
-            anim = animations[n].get_instance(28, 27, fps=self.fps)
-            print(f"Starting animation '{anim.name}' for {time_per_anim} seconds.")
-            self.run_animation(anim)
-            n = (n+1) % len(animations)
+            try:
+                anim = animations[n].get_instance(28, 27, fps=self.fps)
+                print(f"Starting animation '{anim.name}' for {time_per_anim} seconds.")
+                self.run_animation(anim)
+                n = (n+1) % len(animations)
+                print(f"Animation '{anim.name}' finished.")
+            except Exception as e:
+                print(f"Error: Could not start animation '{anim.name}'.")
+                print(e)
+                break
+            
+        if self.displayprocess:
+            print("Attempting to terminate subprocesses...")
+            self.displayprocess.stop()
+            self.displayprocess.join(timeout = 2)
+            if self.displayprocess.is_alive():
+                self.displayprocess.terminate()
+                self.displayprocess.join()  
+            else:
+                print("Display terminated successfully.")
             
         exit(0)
         
     
 if __name__ == "__main__":
-    AnimationController(30, True, True, None, None, 30, None)
+    AnimationController(30, True, False, None, None, 30, None)
     exit(0)
     if len(sys.argv) > 1:
         time_per_anim = int(sys.argv[1])
@@ -158,7 +211,7 @@ if __name__ == "__main__":
         for argument in sys.argv:
             if '--local' in argument:
                 gui = True
-                remote = True
+                remote = False
             elif '--gui' in argument:
                 gui = True
             elif '--fps=' in argument and len(argument) > 6 and argument.split('=')[1].isnumeric():

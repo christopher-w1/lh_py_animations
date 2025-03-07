@@ -1,11 +1,12 @@
 import tkinter as tk
 import color_functions as clr
-import math, random, time, multiprocessing
+import math, random, time
 from stopwatch import Stopwatch
 from pyghthouse import Pyghthouse
-from color_functions import color_average, interpolate, hsv_to_rgb, multiply_val
+from color_functions import color_average, interpolate, hsv_to_rgb, multiply_val, rgb_to_hsv, clip
 
-class ReboundAnimation(multiprocessing.Process):
+class LightDiffractionAnimation():
+    
     class Orb:
         def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0, hue = None) -> None:
             self.lim_x = limx
@@ -16,8 +17,7 @@ class ReboundAnimation(multiprocessing.Process):
             self.x = x
             self.y = y
             #self.color = color.rand_vibrant_color(3)
-            #self.color = clr.shift(clr.rand_rgb_color(3), random.randint(0, 360))
-            self.color = clr.rand_blue_color(2)
+            self.color = clr.shift(clr.rand_rgb_color(3), random.randint(0, 360))
             if hue:
                 self.color = multiply_val(hsv_to_rgb(hue, 100, 100), 2)
             self.colorshift = colorshift
@@ -25,6 +25,7 @@ class ReboundAnimation(multiprocessing.Process):
             self.is_dead = False
             self.exists = 10
             self.hp = random.randint(100, 1000)
+            self.is_diffracted = False            
             
         def bounceAction(self):
             self.is_dead = True
@@ -63,9 +64,9 @@ class ReboundAnimation(multiprocessing.Process):
             else: 
                 self.y = new_y      
 
-            self.lose_energy()    
-            self.shift_color()  
-            self.decay()
+            #self.lose_energy()    
+            #self.shift_color()  
+            #self.decay()
             
 
         def shift_color(self):
@@ -102,29 +103,20 @@ class ReboundAnimation(multiprocessing.Process):
         self._stop_event.set()
         
     @staticmethod
-    def get_instance(xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0):
-        new_instance = ReboundAnimation()
-        new_instance._stop_event = multiprocessing.Event()
-        new_instance.params(xsize, ysize, framequeue, commandqueue, fps, animspeed)
+    def get_instance(xsize, ysize, fps = 30, animspeed = 1.0):
+        new_instance = LightDiffractionAnimation(xsize, ysize, fps, animspeed)
         return new_instance
-
-    def params(self, xsize, ysize, framequeue: multiprocessing.Queue, commandqueue: multiprocessing.Queue, fps = 30, animspeed = 1.0) -> None:
+    
+    def __init__(self, xsize=0, ysize=0, fps=30, animspeed=1.0) -> None:
+        self.name = "Light Diffraction"
         self.matrix = [[(0, 0, 0) for _ in range(ysize)] for _ in range(xsize)]
         self.lim_x = xsize-1
         self.lim_y = ysize-1
-        self.queue = framequeue
-        self.commands = commandqueue
         self.fps = fps
-        #self.matrix = np.zeros((int(self.lim_x), int(self.lim_y), 3), dtype=np.uint8)
         self.orbs = []
-        self.frametimer = Stopwatch()
-        self.frametimer.set(1)
-        self.quittimer = Stopwatch()
-        self.quittimer.set(1)
         self.spawnmore = True
-        for _ in range(5):
-            self.add_rand_orb()
-              
+        self.frame = [[(0, 0, 0) for _ in range(self.lim_y+1)] for _ in range(self.lim_x+1)]
+            
 
     def collapse_matrix(self, matrix):
         collapsed_matrix = []
@@ -150,37 +142,90 @@ class ReboundAnimation(multiprocessing.Process):
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
                 #self.matrix[x][y] = color.dither(self.matrix[x][y], 10)
-                new[x][y] = clr.wash(self.matrix[x][y])
+                #new[x][y] = color.wash(self.matrix[x][y])
+                new[x][y] = clr.clip(self.matrix[x][y])
         return self.collapse_matrix(new)
 
-    
+        
     def add_rand_orb(self):
+        # Zielkoordinaten
+        target_x, target_y = 13, 13+random.randint(-4, 4)
+
+        # Zufällige Startposition
         y = random.uniform(0, self.lim_y)
-        colorshift = random.uniform(0.0, 1.0)*2
-        vecy = 0
-        x = 0
-        vecx = random.uniform(0.1, 1)
+        x = 0  # Starten am linken Rand (x=0)
+
+        # Berechne den Vektor zur Zielposition
+        dx = target_x - x  # Unterschied in der x-Position
+        dy = target_y - y  # Unterschied in der y-Position
+
+        # Berechne die Richtung des Vektors
+        distance = math.sqrt(dx**2 + dy**2)
+        vecx = dx / distance  # Normalisierter Vektor in x-Richtung
+        vecy = dy / distance  # Normalisierter Vektor in y-Richtung
+
+        # Skaliere den Vektor auf die gewünschte Geschwindigkeit
+        speed = random.uniform(0.25, 0.5)
+        vecx *= speed
+        vecy *= speed
+
+        # Zufällige Farbe
         hue = random.randint(0, 360)
-        self.orbs.append(self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, colorshift, hue))
+
+        # Erstelle den neuen Orb und füge ihn hinzu
+        self.orbs.append(self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, 0, hue))
+
+
+    def diffract_orb(self, orb: Orb):
+        x, y = orb.x, orb.y
+        vecx, vecy = orb.move_x, orb.move_y
+        r, g, b = orb.color
         
-        x = self.lim_x
-        vecx = 0 - vecx
-        hue = (hue+180) % 360
-        self.orbs.append(self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, colorshift, hue))
+        h, s, v = rgb_to_hsv(r, g, b)
         
-    def add_rand_orb_2(self):
-        y = random.uniform(0, self.lim_y)
-        vecy = 0
-        if random.randint(0, 1):
-            x = 0
-            vecx = random.uniform(0.1, 1)
-            hue = random.randint(0, 180)
-        else:
-            x = self.lim_x
-            vecx = random.uniform(-0.1, -1)
-            hue = random.randint(181,360)
-        colorshift = random.uniform(0.0, 1.0)*2
-        self.orbs.append(self.Orb(x, y, vecx, vecy, self.lim_x, self.lim_y, colorshift, hue))
+        orb.is_diffracted = True
+        self.orbs.remove(orb)
+        
+
+        # RGB-Orbs erstellen, leicht abgelenkt, um spektrale Aufspaltung zu simulieren
+        colors = [(1,0,0), (0,1,0), (0,0,1)]
+        dx = x - 13  # Abstand zur Vertikallinie
+        angle_to_vertical = math.atan2(vecy, vecx)  # Winkel des Orbs relativ zur horizontalen Achse
+        print(angle_to_vertical)
+        
+        
+        spread_angle = min(45, abs(math.degrees(angle_to_vertical)) / 5)  # Abhängig vom Winkel
+
+
+        for i, (rx, gx, bx) in enumerate(colors):
+            # Berechne neue Winkel für die RGB-Orbs
+            angle_offset = (i - 1) * math.radians(spread_angle)
+            new_vecx = vecx * math.cos(angle_offset) - vecy * math.sin(angle_offset)
+            new_vecy = vecx * math.sin(angle_offset) + vecy * math.cos(angle_offset)
+
+            new_color = [r*rx, g*gx, b*bx]
+
+            # Füge RGB-Orbs hinzu
+            new_orb = self.Orb(x, y, new_vecx, new_vecy, self.lim_x, self.lim_y)
+            new_orb.is_diffracted = True
+            new_orb.color = new_color
+            new_orb.radius =2
+            self.orbs.append(new_orb)
+            
+        m = abs(angle_to_vertical)
+        #print(m)
+        new_vecy = math.sqrt(vecx**2 + vecy**2)
+        new_orb = self.Orb(x, y, 0, new_vecy, self.lim_x, self.lim_y)
+        new_orb.color = (r*m, g*m, b*m)
+        new_orb.radius = 1
+        new_orb.is_diffracted = True
+        self.orbs.append(new_orb)
+        new_orb = self.Orb(x, y, 0, 0-new_vecy, self.lim_x, self.lim_y)
+        new_orb.color = (r*m, g*m, b*m)
+        new_orb.radius = 1
+        new_orb.is_diffracted = True
+        self.orbs.append(new_orb)
+
     
     def render_orb(self, orb):
         # Rendere den Orb auf der Matrix mit seiner aktuellen Position
@@ -200,59 +245,36 @@ class ReboundAnimation(multiprocessing.Process):
                         self.matrix[i][j] = clr.brighten(gradient_color, self.matrix[i][j])
                         #self.matrix[i][j] = color.interpolate(gradient_color, self.matrix[i][j], 0.5)
 
-    
-    def run(self):
-        blur_matrix = [[(0, 0, 0) for _ in range(self.lim_y+1)] for _ in range(self.lim_x+1)]
-        while not self._stop_event.is_set():
-
-            update_interval = 1/self.fps
-            self.frametimer.set(update_interval)
-
-            for x in range(len(self.matrix)):
-                for y in range(len(self.matrix[0])):
-                    blur_matrix[x][y] = color_average([
-                        self.matrix[max(0, min(x + i, len(self.matrix) - 1))][max(0, min(y + j, len(self.matrix[0]) - 1))]
-                        for i in [-1, 0, 1]
-                        for j in [-1, 0, 1]
-                    ])
-                    
-            for x in range(len(self.matrix)):
-                for y in range(len(self.matrix[0])):
-                    self.matrix[x][y] = interpolate(self.matrix[x][y], blur_matrix[x][y], 0.9)
-                    self.matrix[x][y] = clr.shift(clr.decay(self.matrix[x][y], 0.001), 5)
-                    
-            for orb in self.orbs:
-                self.render_orb(orb)
-                orb.move()
-                if orb.is_dead:
-                    self.orbs.remove(orb)
-                    if self.spawnmore:
-                        self.add_rand_orb()
-                        self.add_rand_orb()
-                        
-            if len(self.orbs) > 15:
-                self.spawnmore = False
-            elif len(self.orbs) < 10:
-                self.spawnmore = True
+    def get_frame(self):
+        for x in range(len(self.matrix)):
+            for y in range(len(self.matrix[0])):
+                self.frame[x][y] = color_average([
+                    self.matrix[max(0, min(x + i, len(self.matrix) - 1))][max(0, min(y + j, len(self.matrix[0]) - 1))]
+                    for i in [-1, 0, 1]
+                    for j in [-1, 0, 1]
+                ])
                 
-            matrix = self.get_matrix()
-            self.queue.put(matrix)
-
-            if not self.commands.empty():
-                self.commands.get_nowait()
-                while not self.commands.empty():
-                    self.commands.get_nowait()
-                self.quittimer.set(1)
-            elif self.quittimer.remaining_ms() == 0:
-                print("No signal from control process. Quitting.")
-                self._stop_event.set()
+        for x in range(len(self.matrix)):
+            for y in range(len(self.matrix[0])):
+                self.matrix[x][y] = interpolate(self.matrix[x][y], self.frame[x][y], 0.9)
+                self.matrix[x][y] = clr.shift(clr.decay(self.matrix[x][y], 0.01), 1)
+                
             
-            wait = self.frametimer.remaining()
+        for orb in self.orbs:
+            self.render_orb(orb)
+            orb.move()
+            if not orb.is_diffracted and orb.x >= 13:
+                self.diffract_orb(orb)
+                self.spawnmore = True
+            elif orb.is_dead:
+                self.orbs.remove(orb)
+                    
+        if len(self.orbs) > 2:
+            self.spawnmore = False
+        elif len(self.orbs) < 1:
+            self.spawnmore = True
             
-            time.sleep(wait)
-        exit(0)
-
-import main
-if __name__ == "__main__":
-    main.main()
-    
+        if self.spawnmore:
+            self.add_rand_orb()
+            
+        return self.get_matrix()
