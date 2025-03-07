@@ -20,7 +20,7 @@ class Heart_ft():
     def get_frame(self):
         self.set_frame(self.bitmaps[0])
         self.frame_number += 0.5
-        #self.smooth_edge()
+        self.smooth_edge(1, True)
         return self.frame
 
 
@@ -80,14 +80,14 @@ class Heart_ft():
                          "0000000000000000000000000000"]]
     
 
-    def smooth_edge(self):
+    def smooth_edge(self, n, prio):
         # current frame in processing
         img = []
         
         for y in range(0, 14):
             img.append([])
             for x in range(0, 28):
-                colors = self.get_nearby_colors(x, y)
+                colors = self.get_nearby_colors(x, y, prio)
                 mixed_color = self.get_mixed_color(colors)
                 img[y].append(mixed_color)
 
@@ -96,7 +96,7 @@ class Heart_ft():
                 self.frame[x][y] = img[y][x]
                 
             
-    def get_nearby_colors(self, x, y):
+    def get_nearby_colors(self, x, y, prio):
         colors = []
         
         for offset_x in range(-1,2):
@@ -106,8 +106,9 @@ class Heart_ft():
                     (y+offset_y >= 0 and y+offset_y < len(self.frame[0])):
                     
                     colors.append(self.frame[x+offset_x][y+offset_y])
-                    # increase dominance of center
-                    #colors.append(self.frame[x][y])
+                    if prio:
+			# increase dominance of center
+                    	colors.append(self.frame[x][y])
         
         return colors
 
