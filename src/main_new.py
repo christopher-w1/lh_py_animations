@@ -18,6 +18,7 @@ from animations.frauentag.heart_ft_color import Heart_ft
 from animations.frauentag.venus_shiny import Venus_shiny
 from animations.frauentag.venus_variety import Venus_variety
 from animations.frauentag.venus_world import Venus_world
+from animations.frauentag.scrolltext_ft import Text_ft
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -138,11 +139,16 @@ class AnimationController():
             
         try:
             animations = [
-                Venus_variety(),
-                Venus_shiny(),
-                Heart_ft(),
                 Venus_world(),
+                Heart_ft(), # test with smooth edge
+                Venus_variety(), # maybe change some colors?
+                FireworksAnimation(),
+                Heart_ft(),
+                Text_ft(), # maybe alternative is better?
+                # put more animation inbetween?
+                Venus_shiny(),
                 
+
                 #Dots(),
                 #ScrollText(),
                 #ColorClashAnimation(),
