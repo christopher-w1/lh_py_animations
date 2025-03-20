@@ -22,10 +22,13 @@ from animations.frauentag.scrolltext_ft import Text_ft
 from animations.roots.axe import Axe
 from animations.roots.pot import Pot
 from animations.roots.roots_logo import Roots
-from animations.roots.text import Text_rs
 from animations.a_lighthouse import Lighthouse
 from animations.roots.hill import Hill
 from animations.roots.goat import Goat
+from animations.roots.text_kc import Text_kc
+from animations.roots.text_ks import Text_ks
+from animations.roots.text_roots import Text_roots
+from animations.roots.text_wtk import Text_wtk
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -146,9 +149,12 @@ class AnimationController():
             
         try:
             animations = [
+                Text_kc(),
+                Text_ks(),
+                Text_roots(),
+                Text_wtk(),
                 Goat(),
                 Hill(),
-                Text_rs(),
                 Lighthouse(),
                 Roots(),
                 Pot(),
