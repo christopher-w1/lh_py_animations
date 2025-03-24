@@ -23,9 +23,9 @@ class Lighthouse():
 
         self.color_bg = [0,0,0]
         self.color_1 = [50,150,30]
-        self.color_2 = [255,255,255]
-        self.color_3 = [255,50,50]
-        self.color_4 = [100,100,110]
+        self.color_2 = [250,255,255]
+        self.color_3 = [255,5,5]
+        self.color_4 = [30,30,32]
         self.color_5 = [250,200,10]
         
         self.frame=[]
@@ -68,9 +68,9 @@ class Lighthouse():
                 elif self.bitmap[y][x] == "4":
                     self.frame[x][y] = self.color_4
                 elif self.bitmap[y][x] == "5":
-                    distance = sqrt(pow(x-13.5,2)+pow(y-2.5,2)*1000)*0.05+1
+                    distance = sqrt(pow(x-13.5,2)+pow(y-2.5,2)*1000)*0.005+1
                     v = 1/distance
-                    self.frame[x][y] = from_hsv(0.15,0.9,v)
+                    self.frame[x][y] = from_hsv(0.15,0.5,v)
                 else:
                     self.frame[x][y] = self.color_bg
                     #root = pow(x-13.5,2)-pow(y-2.5,2)*1

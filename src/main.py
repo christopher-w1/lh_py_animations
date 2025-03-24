@@ -19,6 +19,16 @@ from animations.frauentag.venus_shiny import Venus_shiny
 from animations.frauentag.venus_variety import Venus_variety
 from animations.frauentag.venus_world import Venus_world
 from animations.frauentag.scrolltext_ft import Text_ft
+from animations.roots.text_kc import Text_kc
+from animations.roots.text_ks import Text_ks
+from animations.roots.text_roots import Text_roots
+from animations.roots.text_wtk import Text_wtk
+from animations.roots.pot import Pot
+from animations.roots.roots_logo import Roots
+from animations.a_lighthouse import Lighthouse
+from animations.roots.hill import Hill
+from animations.roots.goat import Goat
+from animations.roots.text_crc import Text_crc
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -145,14 +155,27 @@ class AnimationController():
             
         try:
             animations = [
-                Venus_world(),
-                Heart_ft(), # test with smooth edge
+                Roots(),
+                Text_roots(),
+                Text_crc(),
+                Lighthouse(),
+                Pot(),
+                Text_ks(),
+                Goat(),
+                Text_kc(),
+                Hill(),
+                Text_wtk(),
+                
+
+                
+                #Venus_world(),
+                #Heart_ft(), # test with smooth edge
                 #Venus_variety(), # maybe change some colors?
-                FireworksAnimation(),
-                Heart_ft(),
-                Text_ft(), # maybe alternative is better?
-                # put more animation inbetween?
-                Venus_shiny(),
+                #FireworksAnimation(),
+                #Heart_ft(),
+                #Text_ft(), # maybe alternative is better?
+                ## put more animation inbetween?
+                #Venus_shiny(),
                 
 
                 #Dots(),
