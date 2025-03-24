@@ -23,12 +23,13 @@ from animations.roots.text_kc import Text_kc
 from animations.roots.text_ks import Text_ks
 from animations.roots.text_roots import Text_roots
 from animations.roots.text_wtk import Text_wtk
+from animations.roots.text_crc import Text_crc
 from animations.roots.pot import Pot
 from animations.roots.roots_logo import Roots
 from animations.a_lighthouse import Lighthouse
 from animations.roots.hill import Hill
 from animations.roots.goat import Goat
-from animations.roots.text_crc import Text_crc
+
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -167,7 +168,6 @@ class AnimationController():
                 Text_wtk(),
                 
 
-                
                 #Venus_world(),
                 #Heart_ft(), # test with smooth edge
                 #Venus_variety(), # maybe change some colors?
