@@ -29,6 +29,9 @@ from animations.roots.text_ks import Text_ks
 from animations.roots.text_roots import Text_roots
 from animations.roots.text_wtk import Text_wtk
 from animations.roots.text_crc import Text_crc
+from animations.ibd.ribbon import Ribbon
+from animations.ibd.text_ibd import Text_ibd
+from animations.ibd.stomach_burn import SBurn
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -149,16 +152,20 @@ class AnimationController():
             
         try:
             animations = [
-                Roots(),
-                Text_roots(),
-                Text_crc(),
-                Lighthouse(),
-                Pot(),
-                Text_ks(),
-                Goat(),
-                Text_kc(),
-                Hill(),
-                Text_wtk(),
+                SBurn(),
+                Text_ibd(),
+                Ribbon(),
+                
+                #Roots(),
+                #Text_roots(),
+                #Text_crc(),
+                #Lighthouse(),
+                #Pot(),
+                #Text_ks(),
+                #Goat(),
+                #Text_kc(),
+                #Hill(),
+                #Text_wtk(),
 
                 
                 #Venus_world(),
