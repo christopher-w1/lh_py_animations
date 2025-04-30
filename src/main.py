@@ -29,7 +29,10 @@ from animations.roots.roots_logo import Roots
 from animations.a_lighthouse import Lighthouse
 from animations.roots.hill import Hill
 from animations.roots.goat import Goat
-
+from animations.ibd.ribbon import Ribbon
+from animations.ibd.text_ibd import Text_ibd
+from animations.ibd.stomach_burn import SBurn
+from animations.ibd.bowel import Bowel
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -156,16 +159,22 @@ class AnimationController():
             
         try:
             animations = [
-                Roots(),
-                Text_roots(),
-                Text_crc(),
-                Lighthouse(),
-                Pot(),
-                Text_ks(),
-                Goat(),
-                Text_kc(),
-                Hill(),
-                Text_wtk(),
+                Bowel(),
+                SBurn(),
+                Text_ibd(),
+                Ribbon(),
+
+                
+                # Roots(),
+                # Text_roots(),
+                # Text_crc(),
+                # Lighthouse(),
+                # Pot(),
+                # Text_ks(),
+                # Goat(),
+                # Text_kc(),
+                # Hill(),
+                # Text_wtk(),
                 
 
                 #Venus_world(),
