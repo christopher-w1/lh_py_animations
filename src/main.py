@@ -33,6 +33,8 @@ from animations.ibd.ribbon import Ribbon
 from animations.ibd.text_ibd import Text_ibd
 from animations.ibd.stomach_burn import SBurn
 from animations.ibd.bowel import Bowel
+from animations.ibd.text_cu import Text_cu
+from animations.ibd.text_mc import Text_mc
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -159,6 +161,8 @@ class AnimationController():
             
         try:
             animations = [
+                Text_cu(),
+                Text_mc(),
                 Bowel(),
                 SBurn(),
                 Text_ibd(),
