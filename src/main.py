@@ -161,12 +161,13 @@ class AnimationController():
             
         try:
             animations = [
+                SBurn(),
+                Bowel(),
                 Text_cu(),
                 Text_mc(),
-                Bowel(),
-                SBurn(),
-                Text_ibd(),
                 Ribbon(),
+                Text_ibd(),
+                
 
                 
                 # Roots(),

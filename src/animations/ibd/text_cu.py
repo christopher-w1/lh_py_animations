@@ -9,7 +9,7 @@ class Text_cu():
     def get_frame(self):
         if self.scroll_wait <= 0:
             next(self.text_ibd)
-            self.scroll_wait = 4
+            self.scroll_wait = 5
         self.scroll_wait -= 1
         return self.frame
 
@@ -39,7 +39,7 @@ class Text_cu():
         self.xsize = xsize
         self.ysize = ysize
         
-        self.color = (102,38,130)
+        self.color = (188,55,230)
 
         self.frame = []
         for x in range(xsize):
