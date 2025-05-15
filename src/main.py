@@ -82,12 +82,6 @@ class AnimationController():
                 return True
         return False
 
-    def adjust_gamma(self, img:list, gammafactor: float):
-        for x in range(min(len(img), len(image[0]))):
-            for y in range(min(len(img[0]), len(image))):
-                img[x][y] = gamma(img[x][y], gammafactor)
-
-
     def send_frame(self, image: list, factor: float):
         img = Pyghthouse.empty_image()
         for x in range(min(len(img), len(image[0]))):
