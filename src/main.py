@@ -161,14 +161,13 @@ class AnimationController():
             
         try:
             animations = [
-                SBurn(),
-                Bowel(),
-                Text_cu(),
-                Text_mc(),
-                Ribbon(),
-                Text_ibd(),
+                SBurn(),    # Männchen Feuer
+                Ribbon(),   # IBD Schleife
+                Text_ibd(), # World IBD Day
+                SBurn(),    # Männchen Feuer
+                Text_mc(),  # Morbus Crohn
+                Text_cu(),  # Colitis Ulcerosa
                 
-
                 
                 # Roots(),
                 # Text_roots(),
