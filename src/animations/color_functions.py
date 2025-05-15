@@ -359,3 +359,9 @@ def add(color1: tuple[int, int, int], color2: tuple[int, int, int]):
 def multiply_val(color: tuple[int, int, int], value):
     r, g, b = color
     return (r*value, g*value, b*value)
+
+def multiply_color(color1: tuple[int, int, int], color2: tuple[int, int, int]):
+    r = int(color1[0] * color2[0] / 255)
+    g = int(color1[1] * color2[1] / 255)
+    b = int(color1[2] * color2[2] / 255)
+    return (r, g, b)
