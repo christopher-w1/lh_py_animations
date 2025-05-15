@@ -82,11 +82,11 @@ class AnimationController():
                 return True
         return False
 
-    def send_frame(self, image: list, factor: float):
+    def send_frame(self, image: list[list[tuple[int, int, int]]], factor: float):
         img = Pyghthouse.empty_image()
         for x in range(min(len(img), len(image[0]))):
             for y in range(min(len(img[0]), len(image))):
-                img[x][y] = interpolate(image[y][x], img[x][y], factor) if factor < 1.0 else image[y][x]
+                img[x][y] = interpolate(image[y][x], img[x][y], factor) 
         if self.ph:
             self.ph.set_image(img)
         if self.displayqueue:
@@ -113,7 +113,7 @@ class AnimationController():
     def perf_wait(self):
         if self.perfmode:
             while True:
-                if self.frame_timer.remaining_ms < 14: break
+                if self.frame_timer.remaining_ms() < 14: break
         else:
             time.sleep(self.frame_timer.remaining())
         
@@ -196,6 +196,7 @@ class AnimationController():
                         ]
         except:
             print("Error: Could not import animations.")
+            exit(1)
     
         n = 0
         if self.gui_enabled:
@@ -205,20 +206,25 @@ class AnimationController():
                 self.displayprocess.start()
             except:
                 print("Error: Could not start display process.")
-                self.displayprocess.stop()
+                if self.displayprocess:
+                    self.displayprocess.stop()
                 exit(1)
             
         while self.keep_going:
+            anim = None
             try:
                 anim = animations[n].get_instance(28, 27, fps=self.fps)
-                print(f"Starting animation '{anim.name}' for {time_per_anim} seconds.")
-                self.run_animation(anim, time_per_anim)
-                n = (n+1) % len(animations)
-                print(f"Animation '{anim.name}' finished.")
             except Exception as e:
-                print(f"Error: Could not start animation '{anim.name}'.")
-                print(e)
-                break
+                print(f"Error: Could not acces get_instance of next animation.")
+            if anim:
+                try:
+                    print(f"Starting animation '{anim.name}' for {time_per_anim} seconds.")
+                    self.run_animation(anim, time_per_anim)
+                    n = (n+1) % len(animations)
+                    print(f"Animation '{anim.name}' finished.")
+                except Exception as e:
+                    print(f"Error: Could not run animation '{anim.name}'.")
+                    print(e)
             
         if self.displayprocess:
             print("Attempting to terminate subprocesses...")
