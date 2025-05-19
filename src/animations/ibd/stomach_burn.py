@@ -10,7 +10,10 @@ class SBurn():
 
     # Iterate from first to last, then from last to first
     def iter_direction(self):
-        row = [0,0,0,1,2,3,4,5,4,3,2,1,0,1,2,3,4,5,4,3,2,6,7,8,8,8,8]
+        # Transition 2x loop with transition to bowel animation (23 sec timer)
+        #row = [0,0,0,1,2,3,4,5,4,3,2,1,0,1,2,3,4,5,4,3,2,6,7,8,8,8,8]
+        # Normal loop
+        row = [0,1,2,3,4,5,4,5,4,3,2,1]
         while True:
             for x in row:
                 yield x
