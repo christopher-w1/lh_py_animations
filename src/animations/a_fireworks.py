@@ -3,9 +3,9 @@ import color_functions as clr
 import math, random
 
 X_Scale = 0.7
-BRIGHTNESS = 0.5
-GAMMA = 1.5
-PRESERVE_COLOR = 0.5
+BRIGHTNESS = 1.0
+GAMMA = 1.0
+PRESERVE_COLOR = 0.0
 
 class FireworksAnimation:
     class Orb():
