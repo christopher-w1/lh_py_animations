@@ -10,15 +10,10 @@ class Text_PMI():
         return self.frame
 
     # Text: PMI
-    def set_text_PMI(self):
-        text_xOff = 3
+    def set_text_PMI_1(self):
         color_idx = 0
         frame_count = 0
         while True:
-            img = Image.new("RGB", (28,14))
-            draw = ImageDraw.Draw(img)
-            draw.fontmode = "1"
-            draw.text((int(text_xOff),-1), "PMI", font_size=12, stroke_width=0.2)
             colors = [(128,128,128), (0,0,255), (255,0,0)]
             for y in range(14):
                 for x in range(28):
@@ -34,11 +29,22 @@ class Text_PMI():
             if frame_count == self.fps:
                 frame_count = 0
                 color_idx = (color_idx + 1) % len(colors)
-            # next(self.colors)
+
+            yield None
+
+    def set_text_PMI_2(self):
+        while True:
+            for y in range(14):
+                for x in range(28):
+                    if self.bitmap[y][x] != "0":
+                        self.frame[x][y] = (255,255,255)
+            next(self.set_colors)
             yield None
 
     
-    def set_color(self):
+
+    
+    def iterate_colors(self):
         get_colors = []
         for x in range(28):
             get_colors.append(self.change_color())
@@ -112,8 +118,9 @@ class Text_PMI():
             for y in range(ysize):
                 self.frame[x].append([0,0,0])
 
-        self.text_PMI = self.set_text_PMI()
-        # self.colors = self.set_color()
+        #self.text_PMI = self.set_text_PMI_1()
+        self.text_PMI = self.set_text_PMI_2()
+        self.set_colors = self.iterate_colors()
         self.bitmap = ["0000000000000000000000000000",
                        "0000000000000000000000000000",
                        "1111111000002200000000220033",

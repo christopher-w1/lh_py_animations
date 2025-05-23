@@ -23,9 +23,13 @@ class Text_roots():
         return Text_roots(xsize,ysize,fps)
     
     def get_frame(self):
+        if self.wait > 0:
+            self.wait -=1
+            return self.frame
         self.increase_value()
         self.draw_points()
         self.set_text_ROOTS()
+        self.wait = 1
         return self.frame
     
 
@@ -112,6 +116,8 @@ class Text_roots():
                 self.frame[x].append([0,0,0])
         
         self.init_dots()
+
+        self.wait = 10
 
         self.bitmap = ["0000000000000000000000000000",
                        "0000000000000000000000000000",
