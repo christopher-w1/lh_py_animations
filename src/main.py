@@ -35,6 +35,8 @@ from animations.ibd.stomach_burn import SBurn
 from animations.ibd.bowel import Bowel
 from animations.ibd.text_cu import Text_cu
 from animations.ibd.text_mc import Text_mc
+from animations.pmi.pmi_logo import PMI
+from animations.pmi.text_pmi import Text_PMI
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -155,12 +157,16 @@ class AnimationController():
             
         try:
             animations = [
-                SBurn(),    # Männchen Feuer
-                Ribbon(),   # IBD Schleife
-                Text_ibd(), # World IBD Day
-                SBurn(),    # Männchen Feuer
-                Text_mc(),  # Morbus Crohn
-                Text_cu(),  # Colitis Ulcerosa
+                PMI(),
+                Text_PMI(),
+                Text_roots()
+
+                #SBurn(),    # Männchen Feuer
+                #Ribbon(),   # IBD Schleife
+                #Text_ibd(), # World IBD Day
+                #SBurn(),    # Männchen Feuer
+                #Text_mc(),  # Morbus Crohn
+                #Text_cu(),  # Colitis Ulcerosa
                 
                 
                 # Roots(),

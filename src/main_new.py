@@ -32,6 +32,8 @@ from animations.roots.text_crc import Text_crc
 from animations.ibd.ribbon import Ribbon
 from animations.ibd.text_ibd import Text_ibd
 from animations.ibd.stomach_burn import SBurn
+from animations.pmi.pmi_logo import PMI
+from animations.pmi.text_pmi import Text_PMI
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -152,11 +154,12 @@ class AnimationController():
             
         try:
             animations = [
-                SBurn(),
-                Text_ibd(),
-                Ribbon(),
+                Text_PMI()
+                #PMI()
+                #Text_roots()
+                #Lighthouse()
                 
-                #Roots(),
+                #Roots()
                 #Text_roots(),
                 #Text_crc(),
                 #Lighthouse(),
