@@ -29,6 +29,7 @@ from animations.roots.roots_logo import Roots
 from animations.a_lighthouse import Lighthouse
 from animations.roots.hill import Hill
 from animations.roots.goat import Goat
+from animations.roots.scroll_text_roots import ScrollText_Roots
 from animations.ibd.ribbon import Ribbon
 from animations.ibd.text_ibd import Text_ibd
 from animations.ibd.stomach_burn import SBurn
@@ -160,8 +161,10 @@ class AnimationController():
                 PMI(),
                 Text_PMI(),
                 FireworksAnimation(),
+                ScrollText_Roots,
                 Text_roots(),
                 FireworksAnimation(),
+
                 #SBurn(),    # Männchen Feuer
                 #Ribbon(),   # IBD Schleife
                 #Text_ibd(), # World IBD Day
