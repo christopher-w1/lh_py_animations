@@ -159,8 +159,9 @@ class AnimationController():
             animations = [
                 PMI(),
                 Text_PMI(),
-                Text_roots()
-
+                FireworksAnimation(),
+                Text_roots(),
+                FireworksAnimation(),
                 #SBurn(),    # Männchen Feuer
                 #Ribbon(),   # IBD Schleife
                 #Text_ibd(), # World IBD Day
