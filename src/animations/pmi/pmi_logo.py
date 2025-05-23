@@ -20,7 +20,7 @@ class PMI():
         
         grey_center = (3.5, 9)
         grey_t_center = (14, 3)
-        grey_hsv = (0.62, 0.0, 0.4)
+        grey_hsv = (0.62, 0.0, 0.6)
         
         red_center = (23.5, 9)
         red_t_center = (13, 3)
