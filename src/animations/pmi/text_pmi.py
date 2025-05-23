@@ -75,6 +75,8 @@ class Text_PMI():
             # color = [127, 128, 128]
             jump -= 1
 
+            for _ in range(10):
+                yield color
             # grey to blue
             color = [128, 128, 127]
             while color[0] > 0 and jump <= 0:
