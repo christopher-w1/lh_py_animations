@@ -25,8 +25,8 @@ class Ribbon():
             for y in range(14):
                 if self.bitmap[y][x] == "2":
                     self.frame[x][y] = self.color_2
-            yield False
-            yield False
+                    yield False
+                    yield False
 
         # Appear from top left to bottom right
         for x in range(28):
