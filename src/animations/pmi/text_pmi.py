@@ -20,93 +20,79 @@ class Text_PMI():
             draw.text((int(text_xOff),-1), "PMI", font_size=12, stroke_width=0.2)
             for y in range(14):
                 for x in range(28):
-                    #self.frame[x][y] = img.getpixel((x,y))
-                    if img.getpixel((x,y)) == (255,255,255):
+                    if self.bitmap[y][x] == "0":
+                        self.frame[x][y] = (0,0,0)
+                    if self.bitmap[y][x] == "1":
+                        #self.frame[x][y] = (128,128,128)
+                        self.frame[x][y] = (255,255,255)
+                    if self.bitmap[y][x] == "2":
+                        #self.frame[x][y] = (0,0,255)
+                        self.frame[x][y] = (255,255,255)
+                    if self.bitmap[y][x] == "3":
+                        #self.frame[x][y] = (255,0,0)
                         self.frame[x][y] = (255,255,255)
             next(self.colors)
             yield None
 
     
     def set_color(self):
-        color_P = self.change_color(0)
-        color_M = self.change_color(1)
-        color_I = self.change_color(2)
+        get_colors = []
+        for x in range(28):
+            get_colors.append(self.change_color())
+            for _ in range(x):
+                for get_color in get_colors:
+                    next(get_color)
+        
 
         while True:
-            for y in range(14):
-                color = next(color_P)
-                next(color_M)
-                next(color_I)
-                for x in range(11):
-                    if self.frame[x][y] == (255,255,255):
-                        self.frame[x][y] = color
-
-                next(color_P)
-                color = next(color_M)
-                next(color_I)
-                for x in range(11,24):
-                    if self.frame[x][y] == (255,255,255):
-                        self.frame[x][y] = color
-
-                next(color_P)
-                next(color_M)
-                color = next(color_I)
-
-                for x in range(24,28):
+            for x in range(28):
+                color = next(get_colors[x])
+                for y in range(14):
                     if self.frame[x][y] == (255,255,255):
                         self.frame[x][y] = color
                     
             yield None
 
     def change_color(self, jump=0):
-        def red_to_grey(color):
-            color[0] -= 0.02
-            color[1] += 0.02
-            color[2] += 0.02
-
-        def grey_to_blue(color):
-            color[0] -= 0.02
-            color[2] += 0.02
-
-        def blue_to_grey(color):
-            color[0] += 0.02
-            color[2] -= 0.02
-
-        def grey_to_red(color):
-            color[0] += 0.01
-            color[1] -= 0.01
-            color[2] -= 0.01
         
         while True:
             # red to grey
             color = [255,0,0]
-            while color[0] >= 128 and jump <= 0:
-                red_to_grey(color)
+            while color[0] > 128 and jump <= 0:
+                color[0] -= 1
+                color[1] += 1
+                color[2] += 1
                 yield color
             # color = [127, 128, 128]
             jump -= 1
 
             # grey to blue
             color = [128, 128, 127]
-            while color[0] >= 0 and jump <= 0:
-                grey_to_blue(color)
+            while color[0] > 0 and jump <= 0:
+                color[0] -= 1
+                color[2] += 1
                 yield color
             # color = [0, 128, 255]
             jump -= 1
 
             # blue to grey
             color = [0,128,255]
-            while color[2] >= 128 and jump <= 0:
-                blue_to_grey(color)
+            while color[2] > 128 and jump <= 0:
+                color[0] += 1
+                color[2] -= 1
                 yield color
             # color = [128, 128, 127]
+            
 
             jump -= 1
             # grey to red
             color = [127, 128, 128]
-            while color[1] >= 0 and jump <= 0:
-                grey_to_red(color)
+            while color[1] > 0 and jump <= 0:
+                color[0] += 1
+                color[1] -= 1
+                color[2] -= 1
                 yield color
+            
             # color = [255, 0, 0]
 
             jump = 0
@@ -125,18 +111,17 @@ class Text_PMI():
 
         self.text_PMI = self.set_text_PMI()
         self.colors = self.set_color()
-
-        #self.bitmap = (["0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000",
-        #                "0000000000000000000000000000"])
+        self.bitmap = ["0000000000000000000000000000",
+                       "0000000000000000000000000000",
+                       "1111111000002200000000220033",
+                       "1100000110002220000002220033",
+                       "1100000011002222000022220033",
+                       "1100000011002202200220220033",
+                       "1100000110002200222200220033",
+                       "1111111000002200022000220033",
+                       "1100000000002200000000220033",
+                       "1100000000002200000000220033",
+                       "1100000000002200000000220033",
+                       "1100000000002200000000220033",
+                       "0000000000000000000000000000",
+                       "0000000000000000000000000000"]
