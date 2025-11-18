@@ -15,7 +15,6 @@ from mp_diffraction import DiffAnimation
 from mp_conway import GameOfLife
 from mp_scrolltext import ScrollText
 from mp_dots import Dots
-from mp_child_prot_symbol import ChildProtSymbol
 
 
 class AnimationController():   
@@ -156,12 +155,10 @@ if __name__ == "__main__":
     animations = [
                     #ScrollText(),
                     GameOfLife(),
-                    ChildProtSymbol(),
                     ScrollText(),
                     RainAnimation(), 
                     #Dots(),
                     Fireworks(), 
-                    ChildProtSymbol(),
                     Lavablobs(),
                     #RgbTest(), 
                     #ReboundAnimation(), 

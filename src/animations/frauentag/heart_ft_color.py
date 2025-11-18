@@ -108,7 +108,7 @@ class Heart_ft():
                     colors.append(self.frame[x+offset_x][y+offset_y])
                     if prio:
 			# increase dominance of center
-                    	colors.append(self.frame[x][y])
+                        colors.append(self.frame[x][y])
         
         return colors
 
