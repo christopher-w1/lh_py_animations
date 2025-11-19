@@ -40,6 +40,7 @@ from animations.pmi.pmi_logo import PMI
 from animations.pmi.text_pmi import Text_PMI
 from animations.tag_der_kinderrechte.child_prot_symbol import ChildProtSymbol
 from animations.tag_der_kinderrechte.text_unicef import Text_unicef
+from animations.a_lavalamp import Lavalamp
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -162,6 +163,8 @@ class AnimationController():
             animations = [
                 # Tag der Kinderrechte
                 #Heart_ft(),
+                
+                Lavalamp(),
                 Text_unicef(),
                 ChildProtSymbol()
                 #BounceAnimation()

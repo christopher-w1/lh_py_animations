@@ -8,16 +8,16 @@ from colorsys import hsv_to_rgb,rgb_to_hsv
 
 
 
-class ChildProtSymbol(multiprocessing.Process):
+class ChildProtSymbol():
     @staticmethod
     def get_instance(xsize, ysize, fps = 10):
         instance = ChildProtSymbol()
         instance.params()
         return instance
 
-    def params(self) -> None:
-        self.xsize = 14
-        self.ysize = 28
+    def params(self):
+        self.xsize = 28
+        self.ysize = 14
         self.fps = 10
         self.name = "Tag der Kinderrechte - Schützende Hände"
 
