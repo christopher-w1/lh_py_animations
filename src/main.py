@@ -40,6 +40,7 @@ from animations.pmi.pmi_logo import PMI
 from animations.pmi.text_pmi import Text_PMI
 from animations.tag_der_kinderrechte.child_prot_symbol import ChildProtSymbol
 from animations.tag_der_kinderrechte.text_unicef import Text_unicef
+from animations.tag_der_kinderrechte.text_TKr import Text_TKr
 from animations.a_lavalamp import Lavalamp
 
 class AnimationController():   
@@ -164,6 +165,7 @@ class AnimationController():
                 # Tag der Kinderrechte
                 #Heart_ft(),
                 
+                Text_TKr(),
                 Lavalamp(),
                 Text_unicef(),
                 ChildProtSymbol()
