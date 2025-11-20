@@ -77,7 +77,8 @@ class ConwaysGameOfLife():
         return fade_frame.tolist()
 
     def get_frame(self):
-        self.color = cycle(self.color, 2)
+        #self.color = cycle(self.color, 2)
+        self.color = (0, 174, 239)
 
         # Prüfen, ob es Zeit für das nächste Grid-Update ist
         if self.step >= self.fade_steps:

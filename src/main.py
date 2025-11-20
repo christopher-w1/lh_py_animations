@@ -163,13 +163,11 @@ class AnimationController():
         try:
             animations = [
                 # Tag der Kinderrechte
-                #Heart_ft(),
-                
-                Text_TKr(),
-                Lavalamp(),
+                ConwaysGameOfLife(),
                 Text_unicef(),
+                Lavalamp(),
+                Text_TKr(),
                 ChildProtSymbol()
-                #BounceAnimation()
                 
                 # PMI(),
                 # Text_PMI(),
