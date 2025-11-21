@@ -8,15 +8,15 @@ def smoothstep(x):
     x = clamp(x, 0.0, 1.0)
     return x*x*(3 - 2*x)
 
-class HeartEquationRaster:
+class Pulseheart:
     @staticmethod
     def get_instance(out_x=28, out_y=14, fps=12, aa_samples=4, internal_size=28):
-        inst = HeartEquationRaster(out_x, out_y, fps, aa_samples, internal_size)
+        inst = Pulseheart(out_x, out_y, fps, aa_samples, internal_size)
         inst.params()
         return inst
 
     def params(self):
-        self.name = "HeartEquationRaster"
+        self.name = "Pulseheart"
         # Pulsing: fractional amplitude and frequency (Hz)
         self.pulse_strength = 0.14
         self.pulse_freq = 1.0

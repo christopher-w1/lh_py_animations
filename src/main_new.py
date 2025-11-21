@@ -34,6 +34,8 @@ from animations.ibd.text_ibd import Text_ibd
 from animations.ibd.stomach_burn import SBurn
 from animations.pmi.pmi_logo import PMI
 from animations.pmi.text_pmi import Text_PMI
+from animations.notp_25.a_scrolltext import ScrollText as ScrollText_NotP
+from animations.a_pulseheart import Pulseheart
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -118,11 +120,11 @@ class AnimationController():
         
         
     ##### ANIMATION METHOD #####
-    def run_animation(self, anim: BounceAnimation, timeout=3000):
+    def run_animation(self, anim: BounceAnimation, timeout=15):
         # Initialize animation timer with timeout
         self.anim_timer.set(timeout)
         # Initialize frame timer with 100 ms
-        self.frame_timer.set(0.2)
+        self.frame_timer.set(0.1)
         i = 0
         while self.keep_going and not self.anim_timer.has_elapsed():  
                 # Get image from animation
@@ -135,6 +137,7 @@ class AnimationController():
                     print("No image!")
                     break
                 self.frame_timer.set(self.update_interval)
+                print_progress(self.anim_timer.elapsed(), float(timeout))
                     
         
         
@@ -154,41 +157,14 @@ class AnimationController():
             
         try:
             animations = [
-                Text_PMI()
-                #PMI()
-                #Text_roots()
-                #Lighthouse()
-                
-                #Roots()
-                #Text_roots(),
-                #Text_crc(),
-                #Lighthouse(),
-                #Pot(),
-                #Text_ks(),
-                #Goat(),
-                #Text_kc(),
-                #Hill(),
-                #Text_wtk(),
-
-                
-                #Venus_world(),
-                #Heart_ft(), # test with smooth edge
-                #Venus_variety(), # maybe change some colors?
-                #FireworksAnimation(),
-                #Heart_ft(),
-                #Text_ft(), # maybe alternative is better?
-                ## put more animation inbetween?
-                #Venus_shiny(),
-                
-
-                #Dots(),
-                #ScrollText(),
-                #ColorClashAnimation(),
-                #RainAnimation(),
-                #LightDiffractionAnimation(),
-                #ConwaysGameOfLife(),
-                #FireworksAnimation(),
-                #BounceAnimation()
+                Pulseheart(),
+                ScrollText_NotP(),
+                FireworksAnimation(),
+                Heart_ft(),
+                Dots(),
+                ColorClashAnimation(),
+                RainAnimation(),
+                BounceAnimation()
                         ]
         except:
             print("Error: Could not import animations.")
@@ -208,7 +184,7 @@ class AnimationController():
             try:
                 anim = animations[n].get_instance(28, 27, fps=self.fps)
                 print(f"Starting animation '{anim.name}' for {time_per_anim} seconds.")
-                self.run_animation(anim)
+                self.run_animation(anim, timeout=time_per_anim)
                 n = (n+1) % len(animations)
                 print(f"Animation '{anim.name}' finished.")
             except Exception as e:
@@ -227,11 +203,16 @@ class AnimationController():
                 print("Display terminated successfully.")
             
         exit(0)
+
+def print_progress(elapsed, total, bar_length=40):
+    fraction = min(elapsed / total, 1.0)
+    filled_length = int(bar_length * fraction)
+    bar = "█" * filled_length + "-" * (bar_length - filled_length) + " "
+    sys.stdout.write(f"\rProgress: |{bar}| {elapsed:.1f}s / {total:.1f}s")
+    sys.stdout.flush()
         
     
 if __name__ == "__main__":
-    AnimationController(30, True, False, None, None, 30, None)
-    exit(0)
     if len(sys.argv) > 1:
         time_per_anim = int(sys.argv[1])
         gui = False

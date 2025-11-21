@@ -71,7 +71,7 @@ def normalize(color: tuple[int, int, int]) -> tuple[int, int, int]:
     r *= (255/color_max)
     g *= (255/color_max)
     b *= (255/color_max)
-    return (r, g, b)
+    return (int(r), int(g), int(b))
 
 def wash(color: tuple[int, int, int], keep_color=None) -> tuple[int, int, int]:
     r, g, b = color
@@ -98,9 +98,9 @@ def color_average(colors: list[tuple[int, int, int]]) -> tuple[int, int, int]:
         r+=lr
         g+=lg
         b+=lb
-    r/= len(colors)
-    g/= len(colors)
-    b/= len(colors)
+    r//= len(colors)
+    g//= len(colors)
+    b//= len(colors)
     return (r, g, b)
         
 
@@ -215,7 +215,7 @@ def brighten(color1: tuple[int, int, int], color2: tuple[int, int, int]) -> tupl
     return (r, g, b)
 
 
-def shift(color: tuple[int, int, int], shift_amount: int) -> tuple[int, int, int]:
+def shift(color: tuple[int, int, int], shift_amount: int | float) -> tuple[int, int, int]:
     r, g, b = color
 
     # RGB zu HSV konvertieren
@@ -251,7 +251,7 @@ def rgb_to_hsv(r: int, g: int, b: int):
 
     return (int(h), int(s * 100), int(v * 100))
 
-def hsv_to_rgb(h: int, s: int, v: int):
+def hsv_to_rgb(h: int | float, s: int | float, v: int | float):
     h /= 360.0
     s /= 100.0
     v /= 100.0
@@ -288,9 +288,9 @@ def dither(color: tuple[int, int, int], dither_amount: int) -> tuple[int, int, i
     dt = (random.randint(-dither_amount, dither_amount) / 255) + 1
 
     # Dither auf die Farbwerte anwenden
-    r = max(0, min(255, r * dt))
-    g = max(0, min(255, g * dt))
-    b = max(0, min(255, b * dt))
+    r = int(max(0, min(255, r * dt)))
+    g = int(max(0, min(255, g * dt)))
+    b = int(max(0, min(255, b * dt)))
 
     return (r, g, b)
 
