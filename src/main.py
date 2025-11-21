@@ -3,7 +3,7 @@ import tkinter as tk
 import multiprocessing, time, sys, signal
 from pyghthouse.ph import Pyghthouse
 from local_display import DisplayProcess
-from src.animations.a_pulseheart import Pulseheart
+from animations.a_pulseheart import Pulseheart
 from stopwatch import Stopwatch
 from color_functions import interpolate, cycle
 from os import getenv
