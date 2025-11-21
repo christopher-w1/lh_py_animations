@@ -42,6 +42,7 @@ from animations.tag_der_kinderrechte.child_prot_symbol import ChildProtSymbol
 from animations.tag_der_kinderrechte.text_unicef import Text_unicef
 from animations.tag_der_kinderrechte.text_TKr import Text_TKr
 from animations.a_lavalamp import Lavalamp
+from animations.a_heart import Heart
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -162,12 +163,24 @@ class AnimationController():
             
         try:
             animations = [
-                # Tag der Kinderrechte
+                # Night of the Profs
+                Heart(),
                 ConwaysGameOfLife(),
-                Text_unicef(),
+                RainAnimation(),
+                ScrollText(),
+                Dots(),
+                #ColorClashAnimation(), # Farben sind zu verwaschen. Fakultätsfarben nicht erkennbar
                 Lavalamp(),
-                Text_TKr(),
-                ChildProtSymbol()
+                LightDiffractionAnimation(),
+                #FireworksAnimation(), # Keine Fakultätsfarben
+                #BounceAnimation() # Zu dunkel mit Fakultätsfarben und zu schnell
+                
+                # Tag der Kinderrechte
+                #ConwaysGameOfLife(),
+                #Text_unicef(),
+                #Lavalamp(),
+                #Text_TKr(),
+                #ChildProtSymbol()
                 
                 # PMI(),
                 # Text_PMI(),
@@ -204,16 +217,6 @@ class AnimationController():
                 #Text_ft(), # maybe alternative is better?
                 ## put more animation inbetween?
                 #Venus_shiny(),
-                
-
-                #Dots(),
-                #ScrollText(),
-                #ColorClashAnimation(),
-                #RainAnimation(),
-                #LightDiffractionAnimation(),
-                #ConwaysGameOfLife(),
-                #FireworksAnimation(),
-                #BounceAnimation()
                         ]
         except:
             print("Error: Could not import animations.")

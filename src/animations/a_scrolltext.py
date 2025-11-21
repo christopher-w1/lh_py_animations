@@ -77,7 +77,7 @@ class ScrollText():
         if self.show_cau:
             draw.text((self.text_xOff,0), "CAU", font_size=12, stroke_width=0.2, fill=self.cau_color)
         else:
-            draw.multiline_text((self.text_xOff,-3), "NotP\n2024", font_size=9, spacing=-2)
+            draw.multiline_text((self.text_xOff,-3), "NotP\n2025", font_size=9, spacing=-2)
         img = img.transpose(Image.TRANSPOSE)
         pixels = list(img.getdata())
         width, height = img.size

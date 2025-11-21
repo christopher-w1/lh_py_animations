@@ -25,16 +25,19 @@ class Dots():
         self.name = "Moving Dots"
         self.fps = fps
         # initiliase all dots
-        self.d1 = self.Dot(0,  0,  [86, 35 ,129], (1, 0.8))
-        self.d2 = self.Dot(5,  2,  [228,49 ,23 ], (1, 0.7))
-        self.d3 = self.Dot(10, 4,  [153,194,33 ], (1, 0.6))
-        self.d4 = self.Dot(15, 6,  [106,172,218], (1, 0.5))
-        self.d5 = self.Dot(20, 8,  [57 ,132,46 ], (0.5, 1))
-        self.d6 = self.Dot(25, 10, [242,148,0  ], (0.6, 1))
-        self.d7 = self.Dot(0,  12, [0,  103,124], (0.7, 1))
-        self.d8 = self.Dot(5,  0,  [0,  61, 134], (0.8, 1))
+        self.d1 = self.Dot(0,  0,  [86, 35 ,129], (1,   0.8))
+        self.d2 = self.Dot(5,  2,  [228,49 ,23 ], (1,   0.7))
+        self.d3 = self.Dot(10, 4,  [153,194,33 ], (1,   0.6))
+        self.d4 = self.Dot(15, 6,  [106,172,218], (1,   0.5))
+        self.d5 = self.Dot(20, 8,  [57 ,132,46 ], (0.5, 1  ))
+        self.d6 = self.Dot(25, 10, [242,148,0  ], (0.6, 1  ))
+        self.d7 = self.Dot(0,  12, [0,  103,124], (0.7, 1  ))
+        self.d8 = self.Dot(5,  0,  [0,  61, 134], (0.8, 1  ))
         self.dots = [self.d1,self.d2,self.d3,self.d4,self.d5,self.d6,self.d7,self.d8]
         self.framebuffer = []
+
+        self.skip_frame_count = 1
+        self.skip_frame = 1
         
 
     def collapse_matrix(self, matrix):
@@ -156,8 +159,15 @@ class Dots():
         return self.get_matrix()
     
     def get_frame(self):
+        # Reduce framerate by sending the same frame mulitple times
+        if self.skip_frame_count < self.skip_frame:
+            self.skip_frame_count += 1
+            return self.frame
+        self.skip_frame_count = 0
+        
         if len(self.framebuffer) > 1:
-            return self.framebuffer.pop(0)
+            self.frame = self.framebuffer.pop(0)
+            return self.frame
         
         if len(self.framebuffer) == 0:
             self.framebuffer.append(self.generate_next_frame())
@@ -177,5 +187,6 @@ class Dots():
                     row.append(clr.interpolate(pixel_B, pixel_A, factor))
                 interframe.append(row)
             self.framebuffer.append(interframe)
-        return self.framebuffer.pop(0)
+        self.frame = self.framebuffer.pop(0)
+        return self.frame
 
