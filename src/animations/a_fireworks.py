@@ -9,7 +9,7 @@ PRESERVE_COLOR = 0.0
 
 class FireworksAnimation:
     class Orb():
-        def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0, motor = False, fps = 30, spd=1.0) -> None:
+        def __init__(self, x, y, vecx, vecy, limx, limy, colorshift = 0, motor = False, fps = 30, spd=0.2) -> None:
             self.lim_x = limx
             self.lim_y = limy
             self.move_x = vecx
@@ -19,11 +19,11 @@ class FireworksAnimation:
             self.y = y
             #self.color = color.rand_vibrant_color2(random.uniform(2.5, 3.5))
             #self.color = clr.rand_metal_color(random.uniform(2.5, 3.5)) #
-            self.color = clr.rand_faculty_color(random.uniform(2.5, 3.5))
+            self.color = clr.rand_faculty_color(random.uniform(3.5, 4.5))
             self.colorshift = colorshift
             self.loss_factor = random.uniform(0.99, 0.999)
             self.is_dead = False
-            self.blend_in = 10
+            self.blend_in = 8
             self.hp = random.randint(50, 70)
             self.level = 2
             self.weight = 1
@@ -159,7 +159,7 @@ class FireworksAnimation:
             elem.level = 1
             elem.weight = weight
             elem.radius = 1
-            elem.hp = int(15)
+            elem.hp = int(15/max(0.01, self.animspeed or 0)**2)
             elem.color = color
             elem.blend_in = int(random.randint(2, 7))
             #elem.loss_factor = 0.2
@@ -215,7 +215,7 @@ class FireworksAnimation:
         # Clear matrix
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
-                self.matrix[x][y] = clr.wash(clr.decay(self.matrix[x][y], 0.12 * self.animspeed), 1)
+                self.matrix[x][y] = clr.wash(clr.decay(self.matrix[x][y], 0.05 * self.animspeed), 1)
                 #self.matrix[x][y] = clr.wash(clr.gamma(clr.decay(self.matrix[x][y], 0.05 * self.animspeed), 1.1), 1)
 
         # Update orbs
