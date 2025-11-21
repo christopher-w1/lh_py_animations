@@ -3,6 +3,7 @@ import tkinter as tk
 import multiprocessing, time, sys, signal
 from pyghthouse.ph import Pyghthouse
 from local_display import DisplayProcess
+from src.animations.a_pulseheart import Pulseheart
 from stopwatch import Stopwatch
 from color_functions import interpolate, cycle
 from os import getenv
@@ -43,6 +44,7 @@ from animations.tag_der_kinderrechte.text_unicef import Text_unicef
 from animations.tag_der_kinderrechte.text_TKr import Text_TKr
 from animations.a_lavalamp import Lavalamp
 from animations.a_heart import Heart
+from animations.notp_25.a_scrolltext import ScrollText as ScrollText_NotP
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -172,6 +174,9 @@ class AnimationController():
                 #ColorClashAnimation(), # Farben sind zu verwaschen. Fakultätsfarben nicht erkennbar
                 Lavalamp(),
                 LightDiffractionAnimation(),
+                Pulseheart(),
+                ScrollText_NotP(),
+                FireworksAnimation(),
                 #FireworksAnimation(), # Keine Fakultätsfarben
                 #BounceAnimation() # Zu dunkel mit Fakultätsfarben und zu schnell
                 
