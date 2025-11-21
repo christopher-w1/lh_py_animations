@@ -18,7 +18,8 @@ class FireworksAnimation:
             self.x = x
             self.y = y
             #self.color = color.rand_vibrant_color2(random.uniform(2.5, 3.5))
-            self.color = clr.rand_metal_color(random.uniform(2.5, 3.5))
+            #self.color = clr.rand_metal_color(random.uniform(2.5, 3.5)) #
+            self.color = clr.rand_faculty_color(random.uniform(2.5, 3.5))
             self.colorshift = colorshift
             self.loss_factor = random.uniform(0.99, 0.999)
             self.is_dead = False
