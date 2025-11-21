@@ -73,6 +73,9 @@ class RainAnimation(multiprocessing.Process):
         self.spawn_intervall = 100
         self.name = "Colorful Rain"
 
+        self.skip_frame = 1
+        self.skip_frame_count = 1
+
     def collapse_matrix(self, matrix):
         collapsed_matrix = []
         for x in range(len(matrix)):
@@ -125,6 +128,12 @@ class RainAnimation(multiprocessing.Process):
                         self.matrix[i][j] = clr.brighten(gradient_color, self.matrix[i][j])
     
     def get_frame(self):
+        # Reduce framerate by sending the same frame mulitple times
+        if self.skip_frame_count < self.skip_frame:
+            self.skip_frame_count += 1
+            return self.get_matrix()
+        self.skip_frame_count = 0
+        
         for x in range(len(self.matrix)):
             for y in range(len(self.matrix[0])):
                 self.matrix[x][y] = clr.shift(clr.decay(self.matrix[x][y], 1/16), 0)

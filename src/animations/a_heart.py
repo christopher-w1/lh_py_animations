@@ -1,11 +1,13 @@
 from math import sqrt
 from math import sin, pi
 
+import animations.color_functions as clr
 
-class Heart_ft():
+
+class Heart():
     @staticmethod
     def get_instance(xsize, ysize, fps=2):
-        instance = Heart_ft(xsize, ysize, fps)
+        instance = Heart(xsize, ysize, fps)
         instance.params()
         return instance
     
@@ -13,56 +15,62 @@ class Heart_ft():
     def params(self):
         self.xsize = 28
         self.ysize = 14
-        self.fps = 2
-        self.name = "Heart - Frauentag"
+        self.fps = 60
+        self.name = "Heart"
+
+        self.color_heart = self.generate_color_heart()
         
 
     def get_frame(self):
-        self.set_frame(self.bitmaps[0])
-        self.frame_number += 0.5
-        self.smooth_edge(1, True)
+        self.draw_heart(self.bitmaps[0])
+        #self.smooth_edge(1, True)
         return self.frame
 
 
-    def set_frame(self, bitmap):
-        center_x, center_y = 13, 6
-        max_distance = sqrt(center_x**2 + center_y**2)
-
-        # Wähle die Farben für den Farbverlauf
-        start_color = [100, 150, 255]  # Startfarbe (blau)
-        end_color = [205, 50, 150]    # Endfarbe (rot)
-
-
+    def draw_heart(self, bitmap):
+        color = next(self.color_heart)
         for x in range(0, 28):
             for y in range(0, 14):
                 if bitmap[y][x] == "1":
-                    #distance = sqrt((x - center_x)**2 + (y - center_y)**2)
-                    #color_value = int((distance / max_distance) * 255)
-
-                    # Farbverlaufsberechnung basierend auf der horizontalen Position
-                    gradient = (sin(((self.frame_number / 30) + (x / 28)) * pi) + 1) / 2
-                    interpolated_color = [
-                        int(start_color[i] + gradient * (end_color[i] - start_color[i]))
-                        for i in range(3)
-                    ]
-
-                    self.frame[x][y] = interpolated_color
+                    self.frame[x][y] = color
                 else:
-                    self.frame[x][y] = [0, 0, 0]
+                    self.frame[x][y] = (0,0,0)
+
+
+    def generate_color_heart(self):
+        faculties = {
+        'theology': (86,35,129),
+        'law': (228,49,23),
+        'medicine': (153,194,33),
+        'philosophy': (106,172,218),
+        'agriculture/nutritional': (57,132,46),
+        'mathematics/science': (242,148,0),
+        'economics/social': (0,103,124),
+        'technical': (0,61,134),
+        }
+        cau_color = (155,10,125)
+        colors = [(255,0,0), (255,0,0), (155,10,125), (155,10,125), 
+                  (86,35,129), (228,49,23), (153,194,33), (106,172,218), (57,132,46), (242,148,0), (0,103,124), (0,61,134), 
+                  (155,10,125), (155,10,125)]
+        
+        generator = clr.generator_cycle_colors(colors, 25, 50)
+        while True:
+            yield next(generator)
 
     
-    def __init__(self, xsize=28, ysize=14, fps=2):
-        self.name = "Heart - Frauentag"
+    def __init__(self, xsize=28, ysize=14, fps=60):
+        self.name = "Heart"
         self.xsize = xsize
         self.ysize = ysize
         self.fps = fps
-        self.frame_number = 0
         
         self.frame=[]
         for x in range(xsize):
             self.frame.append([])
             for y in range(ysize):
                 self.frame[x].append([0,0,0])
+
+        self.color_heart = self.generate_color_heart()
 
         self.bitmaps = [["0000000000000000000000000000",
                          "0000000000000000000000000000",

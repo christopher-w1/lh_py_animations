@@ -17,7 +17,8 @@ class LightDiffractionAnimation():
             self.x = x
             self.y = y
             #self.color = color.rand_vibrant_color(3)
-            self.color = clr.shift(clr.rand_rgb_color(3), random.randint(0, 360))
+            #self.color = clr.shift(clr.rand_rgb_color(3), random.randint(0, 360))
+            self.color = clr.rand_faculty_color(1)
             if hue:
                 self.color = multiply_val(hsv_to_rgb(hue, 100, 100), 2)
             self.colorshift = colorshift
@@ -191,7 +192,7 @@ class LightDiffractionAnimation():
         colors = [(1,0,0), (0,1,0), (0,0,1)]
         dx = x - 13  # Abstand zur Vertikallinie
         angle_to_vertical = math.atan2(vecy, vecx)  # Winkel des Orbs relativ zur horizontalen Achse
-        print(angle_to_vertical)
+        #print(angle_to_vertical)
         
         
         spread_angle = min(45, abs(math.degrees(angle_to_vertical)) / 5)  # Abhängig vom Winkel

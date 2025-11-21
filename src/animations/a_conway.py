@@ -1,5 +1,5 @@
 import numpy as np
-from color_functions import cycle
+from color_functions import cycle, rand_faculty_color
 
 class ConwaysGameOfLife():
     
@@ -77,7 +77,8 @@ class ConwaysGameOfLife():
         return fade_frame.tolist()
 
     def get_frame(self):
-        self.color = cycle(self.color, 2)
+        #self.color = cycle(self.color, 2)
+        self.color = (155,10,125) # CAU color
 
         # Prüfen, ob es Zeit für das nächste Grid-Update ist
         if self.step >= self.fade_steps:

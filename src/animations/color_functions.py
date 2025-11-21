@@ -365,3 +365,52 @@ def multiply_color(color1: tuple[int, int, int], color2: tuple[int, int, int]):
     g = int(color1[1] * color2[1] / 255)
     b = int(color1[2] * color2[2] / 255)
     return (r, g, b)
+
+def generator_cycle_colors(colors: list[tuple[int, int, int]], cycle_steps=25, wait_steps=50):
+    """
+    Cycle through a list of colors.
+
+    Shows in each yield the current color or a step between two colors.
+    For the colors used, the given list will be iterated through.
+    """
+    # Amount of steps to cycle from one color to the next
+    cycle_steps = cycle_steps
+    # Amount of steps the saem color should be shown
+    wait_steps = wait_steps
+    
+    while True:
+        for i in range(len(colors)-1):
+            start_color = colors[i]
+            end_color = colors[i+1]
+
+            r_step = (end_color[0] - start_color[0]) / (cycle_steps + 1)
+            r_raw = colors[i][0]
+            g_step = (end_color[1] - start_color[1]) / (cycle_steps + 1)
+            g_raw = colors[i][1]
+            b_step = (end_color[2] - start_color[2]) / (cycle_steps + 1)
+            b_raw = colors[i][2]
+
+            for _ in range(wait_steps):
+                yield (int(r_raw), int(g_raw), int(b_raw))
+
+            for _ in range(cycle_steps):
+                r_raw += r_step
+                g_raw += g_step
+                b_raw += b_step
+                yield (int(r_raw), int(g_raw), int(b_raw))
+
+        r_step = (colors[0][0] - colors[-1][0]) / cycle_steps
+        r_raw = colors[-1][0]
+        g_step = (colors[0][1] - colors[-1][1]) / cycle_steps
+        g_raw = colors[-1][1]
+        b_step = (colors[0][2] - colors[-1][2]) / cycle_steps
+        b_raw = colors[-1][2]
+
+        for _ in range(wait_steps):
+            yield (int(r_raw), int(g_raw), int(b_raw))
+
+        for _ in range(cycle_steps):
+            r_raw += r_step
+            g_raw += g_step
+            b_raw += b_step
+            yield (int(r_raw), int(g_raw), int(b_raw))
