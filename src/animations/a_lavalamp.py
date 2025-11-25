@@ -109,11 +109,11 @@ class Lavalamp():
             self.hue = 0
         for x in range(0,28):
             for y in range(0,14):
-                c = self.calcCol(x, 2*y) + 0.1
+                c = self.calcCol(x, 2*y)
                 # TODO: Original is hsl. Add hsl color calculation
                 #self.frame[x][y] = utils.from_hsv(0.55, 0.8, c)
-                #self.frame[x][y] = [255*c,127*c,0] # orange
-                self.frame[x][y] = (155*c,10*c,125*c) # CAU color
+                self.frame[x][y] = (255*c,127*c,0) # orange
+                #self.frame[x][y] = (155*c,10*c,125*c) # CAU color
 
     def map(self, val, istart, istop, ostart, ostop):
         return ostart + (ostop - ostart) * ((val - istart) / (istop - istart))

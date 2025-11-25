@@ -165,20 +165,25 @@ class AnimationController():
             
         try:
             animations = [
-                # Night of the Profs
-                Heart(),
+                # Orange the world
+                Venus_world(),
                 ConwaysGameOfLife(),
-                RainAnimation(),
-                ScrollText(),
-                Dots(),
-                #ColorClashAnimation(), # Farben sind zu verwaschen. Fakultätsfarben nicht erkennbar
-                Lavalamp(),
-                LightDiffractionAnimation(),
-                Pulseheart(),
-                ScrollText_NotP(),
-                FireworksAnimation(),
-                #FireworksAnimation(), # Keine Fakultätsfarben
-                #BounceAnimation() # Zu dunkel mit Fakultätsfarben und zu schnell
+                Lavalamp()
+                
+                # Night of the Profs
+                #Heart(),
+                #ConwaysGameOfLife(),
+                #RainAnimation(),
+                #ScrollText(),
+                #Dots(),
+                ##ColorClashAnimation(), # Farben sind zu verwaschen. Fakultätsfarben nicht erkennbar
+                #Lavalamp(),
+                #LightDiffractionAnimation(),
+                #Pulseheart(),
+                #ScrollText_NotP(),
+                #FireworksAnimation(),
+                ##FireworksAnimation(), # Keine Fakultätsfarben
+                ##BounceAnimation() # Zu dunkel mit Fakultätsfarben und zu schnell
                 
                 # Tag der Kinderrechte
                 #ConwaysGameOfLife(),

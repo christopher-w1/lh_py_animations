@@ -23,11 +23,15 @@ class Venus_world():
         for x in range(0, 28):
             for y in range(0, 14):
                 if bitmap[y][x] == "1":
-                    self.frame[x][y] = [199, 21, 133]
+                    #self.frame[x][y] = [199, 21, 133]
+                    self.frame[x][y] = [255,127,0] # Orange the world color
                 elif bitmap[y][x] == "2":
-                    self.frame[x][y] = [0, 255, 0]
+                    #self.frame[x][y] = [0, 255, 0]
+                    self.frame[x][y] = [200,100,0] # Orange the world color
+                    
                 elif bitmap[y][x] == "3":
-                    self.frame[x][y] = [72, 118, 255]
+                    #self.frame[x][y] = [72, 118, 255]
+                    self.frame[x][y] = [20,10,0] # Orange the world color
                 elif bitmap[y][x] == "4":
                     self.frame[x][y] = [255, 255, 255]
                 else:
