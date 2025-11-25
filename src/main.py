@@ -5,6 +5,7 @@ from pyghthouse.ph import Pyghthouse
 from local_display import DisplayProcess
 from animations.a_pulseheart import Pulseheart
 from animations.orange_the_world.a_orange_hand import OrangeHand
+from animations.orange_the_world.a_rain import OrangeRain
 from stopwatch import Stopwatch
 from color_functions import interpolate, cycle
 from os import getenv
@@ -167,6 +168,7 @@ class AnimationController():
         try:
             animations = [
                 # Orange the world
+                OrangeRain(),
                 OrangeHand(),
                 Venus_world(),
                 ConwaysGameOfLife(),
