@@ -168,11 +168,11 @@ class AnimationController():
         try:
             animations = [
                 # Orange the world
-                OrangeRain(),
-                OrangeHand(),
-                Venus_world(),
-                ConwaysGameOfLife(),
-                Lavalamp()
+                #OrangeRain(),
+                #OrangeHand(),
+                #Venus_world(),
+                #ConwaysGameOfLife(),
+                #Lavalamp()
                 
                 # Night of the Profs
                 #Heart(),
@@ -223,14 +223,15 @@ class AnimationController():
                 # Text_wtk(),
                 
 
-                #Venus_world(),
-                #Heart_ft(), # test with smooth edge
-                #Venus_variety(), # maybe change some colors?
+                Venus_world(),
+                Heart_ft(), # test with smooth edge
+                Venus_variety(), # maybe change some colors?
                 #FireworksAnimation(),
-                #Heart_ft(),
+                Heart_ft(),
                 #Text_ft(), # maybe alternative is better?
-                ## put more animation inbetween?
-                #Venus_shiny(),
+                # put more animation inbetween?
+                Venus_shiny(),
+                Lavalamp()
                         ]
         except:
             print("Error: Could not import animations.")
