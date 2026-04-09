@@ -47,6 +47,12 @@ from animations.tag_der_kinderrechte.text_TKr import Text_TKr
 from animations.a_lavalamp import Lavalamp
 from animations.a_heart import Heart
 from animations.notp_25.a_scrolltext import ScrollText as ScrollText_NotP
+from animations.olympia.jo import Jo
+from animations.olympia.text_jo1 import Text_jo1
+from animations.olympia.text_jo2 import Text_jo2
+from animations.olympia.text_olympia import Text_olympia
+from animations.olympia.text_jo_date1 import Text_jo_date1
+from animations.olympia.text_jo_date2 import Text_jo_date2
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -167,6 +173,21 @@ class AnimationController():
             
         try:
             animations = [
+                # jo! Abstimmung - Olympia
+                # Time: 46 seconds
+                Text_jo1(),
+                Jo(),
+                Text_olympia(),
+                Jo(),
+                Text_jo_date1(),
+                Jo(),
+                Text_jo2(),
+                Jo(),
+                Text_olympia(),
+                Jo(),
+                Text_jo_date2(),
+                Jo(),
+                
                 # Orange the world
                 #OrangeRain(),
                 #OrangeHand(),
@@ -223,15 +244,15 @@ class AnimationController():
                 # Text_wtk(),
                 
 
-                Venus_world(),
-                Heart_ft(), # test with smooth edge
-                Venus_variety(), # maybe change some colors?
+                #Venus_world(),
+                #Heart_ft(), # test with smooth edge
+                #Venus_variety(), # maybe change some colors?
                 #FireworksAnimation(),
-                Heart_ft(),
+                #Heart_ft(),
                 #Text_ft(), # maybe alternative is better?
                 # put more animation inbetween?
-                Venus_shiny(),
-                Lavalamp()
+                #Venus_shiny(),
+                #Lavalamp()
                         ]
         except:
             print("Error: Could not import animations.")
