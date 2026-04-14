@@ -53,6 +53,7 @@ from animations.olympia.text_jo2 import Text_jo2
 from animations.olympia.text_olympia import Text_olympia
 from animations.olympia.text_jo_date1 import Text_jo_date1
 from animations.olympia.text_jo_date2 import Text_jo_date2
+from animations.olympia.sailing import Sailing
 
 class AnimationController():   
     def __init__(self, time_per_anim, gui = False, remote = True, user=None, token=None, fps=60, animation=None) -> None:
@@ -175,18 +176,19 @@ class AnimationController():
             animations = [
                 # jo! Abstimmung - Olympia
                 # Time: 46 seconds
+                Sailing(),
+                Jo(),
                 Text_jo1(),
                 Jo(),
                 Text_olympia(),
-                Jo(),
+                Sailing(),
                 Text_jo_date1(),
                 Jo(),
                 Text_jo2(),
-                Jo(),
+                Sailing(),
                 Text_olympia(),
                 Jo(),
                 Text_jo_date2(),
-                Jo(),
                 
                 # Orange the world
                 #OrangeRain(),
