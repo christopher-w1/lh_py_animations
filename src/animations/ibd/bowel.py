@@ -76,7 +76,7 @@ class Bowel():
 
         # Neue Entzündung zufällig hinzufügen (z. B. 1% Chance pro Frame)
         if random.random() < 0.05:
-            print("Adding new inflammation")
+            #print("Adding new inflammation")
             x = random.randint(4, self.xsize - 5)
             y = random.randint(4, self.ysize - 5)
             radius = random.randint(3, 5)

@@ -29,7 +29,7 @@ class Text_mc():
                     else:
                         self.frame[x][y] = [0,0,0]
             text_xOff -= 1
-            if text_xOff < -95:
+            if text_xOff < -100:
                 text_xOff = 28
             yield None
 

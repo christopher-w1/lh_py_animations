@@ -34,7 +34,9 @@ from animations.roots.hill import Hill
 from animations.roots.goat import Goat
 from animations.roots.scroll_text_roots import ScrollText_Roots
 from animations.ibd.ribbon import Ribbon
+from animations.ibd.ribbon_invert import RibbonI
 from animations.ibd.text_ibd import Text_ibd
+from animations.ibd.text_ibd_nb import Text_ibd_nb
 from animations.ibd.stomach_burn import SBurn
 from animations.ibd.bowel import Bowel
 from animations.ibd.text_cu import Text_cu
@@ -176,19 +178,19 @@ class AnimationController():
             animations = [
                 # jo! Abstimmung - Olympia
                 # Time: 46 seconds
-                Sailing(),
-                Jo(),
-                Text_jo1(),
-                Jo(),
-                Text_olympia(),
-                Sailing(),
-                Text_jo_date1(),
-                Jo(),
-                Text_jo2(),
-                Sailing(),
-                Text_olympia(),
-                Jo(),
-                Text_jo_date2(),
+                # Sailing(),
+                # Jo(),
+                # Text_jo1(),
+                # Jo(),
+                # Text_olympia(),
+                # Sailing(),
+                # Text_jo_date1(),
+                # Jo(),
+                # Text_jo2(),
+                # Sailing(),
+                # Text_olympia(),
+                # Jo(),
+                # Text_jo_date2(),
                 
                 # Orange the world
                 #OrangeRain(),
@@ -226,12 +228,17 @@ class AnimationController():
                 # Text_roots(),
                 # FireworksAnimation(),
 
-                #SBurn(),    # Männchen Feuer
-                #Ribbon(),   # IBD Schleife
-                #Text_ibd(), # World IBD Day
-                #SBurn(),    # Männchen Feuer
-                #Text_mc(),  # Morbus Crohn
-                #Text_cu(),  # Colitis Ulcerosa
+                # IBD - Day
+                # Time: 46 sec
+                Text_ibd_nb(),  # IBD has no borders
+                SBurn(),        # Männchen Feuer
+                Text_mc(),      # Morbus Crohn
+                RibbonI(),      # IBD Schleife mit invertierten Farben
+                Text_ibd(),     # World IBD Day
+                Bowel(),        # Magen mit zufälligen Entzündungen
+                Text_cu(),      # Colitis Ulcerosa
+                Ribbon(),       # IBD Schleife
+                
                 
                 
                 # Roots(),

@@ -1,7 +1,7 @@
-class Ribbon():
+class RibbonI():
     @staticmethod
     def get_instance(xsize, ysize, fps):
-        instance = Ribbon(xsize, ysize, fps)
+        instance = RibbonI(xsize, ysize, fps)
         #instance.params()
         return instance
     
@@ -52,7 +52,7 @@ class Ribbon():
     
     
     def __init__(self, xsize=28, ysize=14, fps=30):
-        self.name = "IBD - Ribbon"
+        self.name = "IBD - Ribbon inverted"
         self.xsize = xsize
         self.ysize = ysize
         self.fps = fps
@@ -63,10 +63,10 @@ class Ribbon():
             for y in range(ysize):
                 self.frame[x].append([0,0,0])
 
-        self.color_bg = [0,0,0]
-        self.color_1 = [188,55,230]
-        self.color_2 = [179,52,218]
-        self.color_3 = [174,50,212]
+        self.color_bg = [125,80,140]
+        self.color_1 = [255,255,255]
+        self.color_2 = [242,242,242]
+        self.color_3 = [240,240,240]
 
         self.ribbon_appear = self.appear_ribbon()
 
